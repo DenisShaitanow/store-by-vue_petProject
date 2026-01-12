@@ -1,0 +1,27 @@
+
+
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",  
+    "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "outDir": "./dist",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["node", "vue"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "plugins": [
+          {
+            "name": "vue" 
+          }
+        ]
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "shims-vue.d.ts", "src/main.ts"],
+  "exclude": ["node_modules"]
+}
