@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import { ref, computed, toRefs } from 'vue';
+    import { ref, computed, toRefs, withDefaults, defineProps } from 'vue';
     import { CheckboxOption, CheckboxDropdownProps } from './types';
     import CheckboxGroupUI from '../checkbox/CheckboxGroupUI.vue';
     import BaseDropdown from '../baseDropdown/BaseDropdown.vue';

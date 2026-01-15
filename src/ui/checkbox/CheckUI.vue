@@ -1,4 +1,6 @@
 <script setup lang="ts">
+
+import { withDefaults, defineProps} from 'vue';
     
     
     export interface CheckboxUIProps {
@@ -20,9 +22,9 @@
         props.onChange(target.checked); // Передаём boolean
     };
 
-    </script>
+</script>
     
-    <template>
+<template>
       <label
         :for="label"
         :class="[
@@ -40,9 +42,9 @@
         <span :class="$style.icon"></span>
         <span :class="$style.text">{{ label }}</span>
       </label>
-    </template>
+</template>
     
-    <style module>
+<style module>
     .label {
       display: flex;
       flex-direction: row;
@@ -89,4 +91,4 @@
     .input:checked + .icon {
       background-image: url("../assets/checkbox-done.svg");
     }
-    </style>
+</style>

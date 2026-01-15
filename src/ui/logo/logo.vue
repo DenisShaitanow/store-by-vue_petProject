@@ -22,100 +22,100 @@
 </script>
 
 <style module scoped>
-.wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  width: fit-content;
-}
-
-.icon {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.svg {
-  width: 40px;
-  height: 40px;
-}
-
-.bg {
-  fill: var(--accent-color);
-}
-
-.symbol {
-  fill: var(--background-page-color);
-}
-
-.text {
-  color: var(--text-color);
-  font-weight: var(--font-weight-logo);
-  font-size: var(--font-size-logo);
-  font-family: var(--font-family-logo);
-  line-height: var(--line-height-logo);
-  letter-spacing: -0.02em;
-}
-
-@media (min-width: 769px) and (max-width: 900px) {
   .wrapper {
-    width: 100px;
-    gap: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
   }
 
-  .text {
-    font-size: 18px;
+  .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .svg {
-    width: 22px;
-    height: 22px;
-  }
-}
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .wrapper {
-    gap: 5px;
+    width: 40px;
+    height: 40px;
   }
 
-  .text {
-    font-size: 16px;
+  .bg {
+    fill: var(--accent-color);
   }
 
-  .svg {
-    width: 19px;
-    height: 19px;
-  }
-}
-
-@media (min-width: 321px) and (max-width: 480px) {
-  .wrapper {
-    gap: 3px;
+  .symbol {
+    fill: var(--background-page-color);
   }
 
   .text {
-    font-size: 13px;
+    color: var(--text-color);
+    font-weight: var(--font-weight-logo);
+    font-size: var(--font-size-logo);
+    font-family: var(--font-family-logo);
+    line-height: var(--line-height-logo);
+    letter-spacing: -0.02em;
   }
 
-  .svg {
-    width: 14px;
-    height: 14px;
-  }
-}
+  @media (min-width: 769px) and (max-width: 900px) {
+    .wrapper {
+      width: 100px;
+      gap: 8px;
+    }
 
-@media (max-width: 321px) {
-  .wrapper {
-    gap: 3px;
+    .text {
+      font-size: 18px;
+    }
+
+    .svg {
+      width: 22px;
+      height: 22px;
+    }
   }
 
-  .text {
-    font-size: 12px;
+  @media (min-width: 481px) and (max-width: 768px) {
+    .wrapper {
+      gap: 5px;
+    }
+
+    .text {
+      font-size: 16px;
+    }
+
+    .svg {
+      width: 19px;
+      height: 19px;
+    }
   }
 
-  .svg {
-    width: 14px;
-    height: 14px;
+  @media (min-width: 321px) and (max-width: 480px) {
+    .wrapper {
+      gap: 3px;
+    }
+
+    .text {
+      font-size: 13px;
+    }
+
+    .svg {
+      width: 14px;
+      height: 14px;
+    }
   }
-}
+
+  @media (max-width: 321px) {
+    .wrapper {
+      gap: 3px;
+    }
+
+    .text {
+      font-size: 12px;
+    }
+
+    .svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
 </style>

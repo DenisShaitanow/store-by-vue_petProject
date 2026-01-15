@@ -43,8 +43,10 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
+    "-": "^0.0.1",
     "@vitejs/plugin-vue": "^6.0.3",
     "classnames": "^2.5.1",
+    "vite-svg-loader": "^5.1.0",
     "vue-date-picker": "^1.0.2"
   }
 }

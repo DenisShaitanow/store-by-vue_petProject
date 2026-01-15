@@ -1,171 +1,174 @@
 
 
-<script lang="ts">
-    import { defineComponent, computed, ref, nextTick, watch, withDefaults, defineProps } from 'vue';
-    import classNames from 'classnames';
-    import $style from './BaseDropdown.vue?module'; // Путь к вашему файлу
-    
-    type PlacementType = 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right';
-    
-    interface DropdownContent {
-      content: any;
+<script setup lang="ts">
+
+
+import { ref, computed, onMounted, defineEmits, withDefaults, defineProps, onUnmounted, watch, nextTick } from 'vue'
+import type { PlacementType } from './type'
+
+interface Props {
+
+  /** Открыто ли меню */
+  isOpen?: boolean
+  /** Колбэк при изменении состояния */
+  onToggle?: (isOpen: boolean) => void
+  /** Позиционирование */
+  placement?: PlacementType
+  /** Смещение в px */
+  offset?: number
+  /** Закрывать при клике вне */
+  closeOnClickOutside?: boolean
+  /** Закрывать по Escape */
+  closeOnEscape?: boolean
+  /** Отключено ли */
+  disabled?: boolean
+  /** CSS класс контейнера */
+  className?: string
+  /** CSS класс dropdown */
+  dropdownClassName?: string
+  /** Aria-label */
+  ariaLabel?: string
 }
 
-const props = withDefaults(defineProps<{
-  trigger: any;                   // Требуется триггер любого типа
-  children: DropdownContent[];    // Обязательное массив детей
-  isOpen?: boolean;               // Может отсутствовать
-  onToggle?: (isOpen: boolean) => void; // Колбэк
-  placement?: PlacementType;      // Вариант расположения
-  offset?: number;                // Число смещения
-  closeOnClickOutside?: boolean;  // Логическое значение закрытия вне
-  closeOnEscape?: boolean;        // Логическое значение закрытия ESC
-  disabled?: boolean;             // Логический признак блокировки
-  className?: string;             // Строка класса контейнера
-  dropdownClassName?: string;     // Строка класса выпадающего блока
-  ariaLabel?: string;             // Строковая метка доступности
-}>(), {
-  placement: 'bottom-left',       // Дефолтное размещение снизу слева
-  offset: 4,                     // Дефолтное смещение 4px
-  closeOnClickOutside: true,      // По умолчанию закрывается при клике вне
-  closeOnEscape: true,            // По умолчанию закрывается по ESC
-  disabled: false,                // Изначально не отключено
-  isOpen: false,                 // Изначально закрыто
-});
+const props = withDefaults(defineProps<Props>(), {
+  placement: 'bottom-left',
+  offset: 4,
+  closeOnClickOutside: true,
+  closeOnEscape: true,
+  disabled: false,
+  isOpen: false
+})
+
+const emit = defineEmits<{
+ 
+  /** Для поддержки v-model:isOpen */
+  'update:isOpen': [isOpen: boolean]
+}>();
+
+watch(() => props.isOpen, () => {
+  console.log(props.isOpen)
+})
 
 
 
-export default defineComponent({
-  name: 'BaseDropdown',
-      setup(props: {
-      trigger: any;                   // Требуется триггер любого типа
-      children: DropdownContent[];    // Обязательное массив детей
-      isOpen?: boolean;               // Может отсутствовать
-      onToggle?: (isOpen: boolean) => void; // Колбэк
-      placement?: PlacementType;      // Вариант расположения
-      offset?: number;                // Число смещения
-      closeOnClickOutside?: boolean;  // Логическое значение закрытия вне
-      closeOnEscape?: boolean;        // Логическое значение закрытия ESC
-      disabled?: boolean;             // Логический признак блокировки
-      className?: string;             // Строка класса контейнера
-      dropdownClassName?: string;     // Строка класса выпадающего блока
-      ariaLabel?: string;             // Строковая метка доступности
-    }
-) {
-    const internalIsOpen = ref(false);                
-    const isOpen = computed<boolean>(() => props.isOpen ?? internalIsOpen.value); 
-    
-        const containerRef = ref<HTMLDivElement | null>(null);
-        const dropdownRef = ref<HTMLDivElement | null>(null);
-    
-        function toggle(isOpen: boolean) {
-          if (props.disabled) return;
-          if (props.onToggle) {
-            props.onToggle(isOpen);
-          } else {
-            internalIsOpen.value = isOpen;
-          }
-        }
-    
-        async function handleTriggerClick() {
-          await nextTick(); // wait for DOM update before toggling
-          toggle(!isOpen.value);
-        }
-    
-        function handleTriggerKeyDown(e: KeyboardEvent) {
-          if (['Enter', ' '].includes(e.key)) {
-            e.preventDefault();
-            toggle(!isOpen.value);
-          } else if (e.key === 'Escape') {
-            e.preventDefault();
-            toggle(false);
-          }
-        }
-    
-    
-        function focusFirstFocusableElement() {
-          if (isOpen.value && dropdownRef.value) {
-            const focusableElements = [
-              'button',
-              '[href]',
-              'input',
-              'select',
-              'textarea',
-              `[tabindex]:not([tabindex="-1"])`
-            ];
-            const el: HTMLDivElement | null = dropdownRef?.value.querySelector(focusableElements.join(', '));
-            el?.focus();
-          }
-        }
-    
-        const containerClasses = computed(() =>
-            classNames($style.container, {
-                [$style.disabled]: props.disabled,
-            }, props.className)
-        );
+// Реактивное состояние
+const internalIsOpen = ref(false)
+const containerRef = ref<HTMLElement>()
+const dropdownRef = ref<HTMLElement>()
 
-        const dropdownClasses = computed(() =>
-            classNames($style.dropdown, $style[`placement-${props.placement}`], {
-                [$style.open]: isOpen.value,
-            }, props.dropdownClassName)
-        );
+// Вычисляемое свойство для isOpen
+const isOpen = computed<boolean>(() => 
+  props.isOpen ?? internalIsOpen.value
+)
 
-        const dropdownStyles = computed(() => ({
-            '--dropdown-offset': `${props.offset}px`,
-        }));
 
-        const placement = props.placement;
-    
-        return {
-          isOpen,
-          containerRef,
-          dropdownRef,
-          handleTriggerClick,
-          handleTriggerKeyDown,
-          containerClasses,
-          dropdownClasses,
-          dropdownStyles,
-          focusFirstFocusableElement,
-          placement
-        };
-      },
-    });
-</script>
-    
-<template>
-    <div :class="$style.wrapper">
-      <!-- Тригер -->
-      <div
-        :class="$style.trigger"
-        @click="handleTriggerClick"
-        @keydown="handleTriggerKeyDown"
-        :tabindex="disabled ? '-1' : '0'"
-        role="button"
-        :aria-haspopup="true"
-        :aria-expanded="isOpen"
-        :aria-label="ariaLabel"
-        data-testid="base-dropdown-trigger"
-      >
-        {{ trigger }}
-      </div>
+const handleTriggerClick = () => {
+  emit('update:isOpen', true)
+}
+
+const handleTriggerKeyDown = (e: KeyboardEvent) => {
+  if (['Enter', ' '].includes(e.key)) {
+    e.preventDefault()
+    emit('update:isOpen', true)
+  } else if (e.key === 'Escape' && props.closeOnEscape) {
+    e.preventDefault()
+    emit('update:isOpen', false)
+  }
+}
+
+const handleClickOutside = (e: MouseEvent) => {
+  if (
+    isOpen.value && 
+    props.closeOnClickOutside &&
+    containerRef.value &&
+    !containerRef.value.contains(e.target as Node) &&
+    dropdownRef.value &&
+    !dropdownRef.value.contains(e.target as Node)
+  ) {
+    emit('update:isOpen', false)
+  }
+}
+
+const handleEscapeKey = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && isOpen.value && props.closeOnEscape) {
+    emit('update:isOpen', false)
+  }
+}
+
+const focusFirstFocusableElement = () => {
+  if (!dropdownRef.value) return
   
-      <!-- Сам выпадающий список -->
-      <div
-        v-show="isOpen"
-        :class="[
-          $style.dropdown,
-          $style[`placement-${placement}`]
-        ]"
-        :style="dropdownStyles"
-        role="menu"
-        :aria-hidden="!isOpen"
-        data-testid="base-dropdown-content"
-      >
-        <div :class="$style.content">
-          {{ children }}
-        </div>
-      </div>
+  const focusableSelectors = [
+    'button:not([disabled])',
+    '[href]:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ].join(', ')
+  
+  const focusable = dropdownRef.value.querySelector(focusableSelectors) as HTMLElement
+  focusable?.focus()
+}
+
+// Добавляем глобальные обработчики
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('keydown', handleEscapeKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('keydown', handleEscapeKey)
+})
+</script>
+
+<template>
+  <div 
+    ref="containerRef"
+    :class="['base-dropdown-wrapper', className]"
+    data-testid="base-dropdown-wrapper"
+  >
+    <!-- Триггер (slot) -->
+    <div
+      :class="['base-dropdown-trigger', {    }]"
+      @click="handleTriggerClick"
+      @keydown="handleTriggerKeyDown"
+      :tabindex="disabled ? -1 : 0"
+      role="button"
+      aria-haspopup="true"
+      :aria-expanded="isOpen"
+      :aria-label="ariaLabel"
+      data-testid="base-dropdown-trigger"
+    >
+      <!-- Slot для триггера -->
+      <slot name="trigger">
+        <!-- Fallback если slot не предоставлен -->
+        
+      </slot>
     </div>
+
+    <!-- Dropdown контент -->
+    <div
+      v-if="isOpen"
+      ref="dropdownRef"
+      :class="[
+        'base-dropdown-content',
+        `placement-${placement}`,
+        dropdownClassName
+      ]"
+      :style="{ '--offset': `${offset}px` }"
+      role="menu"
+      aria-hidden="false"
+      data-testid="base-dropdown-content"
+    >
+      <!-- Slot для контента -->
+      <slot>
+        <!-- Fallback если slot не предоставлен -->
+        
+      </slot>
+    </div>
+  </div>
 </template>
     
 <style module scoped lang="css">
