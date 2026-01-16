@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, withDefaults, defineProps, defineEmits } from 'vue';
 
 import './button.css';
 
@@ -30,7 +30,7 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-  (e: 'click', id: number): void;
+  (e: 'click', id: number): void
 }>();
 
 const classes = computed(() => ({
