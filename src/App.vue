@@ -1,27 +1,30 @@
 <script setup>
   import { ref, computed, onMounted, defineEmits, withDefaults, defineProps, onUnmounted, watch, nextTick } from 'vue'
     import './variables.css';
-    import Logo from './ui/logo/logo.vue';
+    /*import Logo from './ui/logo/logo.vue';
     import Button from './ui/button/Button.vue';
     import UserDropdown from './ui/userDropdownMenu/UserDropdownMenu.vue';
     import IconButton from './ui/iconButton/iconButton.vue';
     import LikeIcon from './ui/assets/like.svg'
     import Spinner from './ui/spinnerPulse/SpinnerPulse.vue';
+    import Header from './ui/header/Header.vue';*/
     // Здесь можно подключить глобальные стили, провайдеры и т.п.
 </script>
     
 <template>
-      <div id="app">
+      <router-view />
+      <!--<div id="app">
         <!-- Ваш основной контент -->
         <!--<router-view v-if="useRouter()"></router-view> --> <!-- Если используете роутер -->
         <!-- Или просто содержимое -->
-        <h1>Добро пожаловать в Vue-проект!</h1>
+        <!--<h1>Добро пожаловать в Vue-проект!</h1>
         <Logo />
         <Button label="oooooooooooo"/>
         <UserDropdown :user="{ nameUser: 'vanya' } "/>
         <IconButton :type="'notification'"  />
         <Spinner />
-      </div>
+        <Header />
+      </div> -->
 </template>
     
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
     import { withDefaults, defineProps } from 'vue';
-    import CheckboxUI from './CheckboxUI.vue';
+    import CheckboxUI from './CheckUI.vue';
     
     export interface CheckboxGroupUIProps {
       title?: string;

@@ -1,12 +1,551 @@
+<template>
+  <!-- Static mode -->
+  <div
+    v-if="staticMode"
+    :class="[
+      $style.staticContainer,
+      className,
+      staticMode && $style.staticMode,
+    ]"
+  >
+    <h3 v-if="title" :class="$style.staticTitle">{{ title }}</h3>
+    
+    <div :class="$style.content">
+      <!-- Search input -->
+      <div v-if="enableSearch" :class="$style.searchContainer">
+        <SearchInput
+          v-model="searchQuery"
+          :placeholder="searchPlaceholder"
+          :class="$style.searchInput"
+        />
+      </div>
+
+      <div :class="$style.optionsList">
+        <!-- No options -->
+        <div v-if="filteredOptions.length === 0" :class="$style.noOptions">
+          {{ enableSearch && searchQuery ? 'Ничего не найдено' : 'Нет доступных опций' }}
+        </div>
+
+        <!-- Tree mode -->
+        <div
+          v-else-if="treeMode"
+          :class="$style.treeContainer"
+        >
+          <ExpandableList
+            :max-visible-items="maxVisibleOptions"
+            :show-all-text="showAllText"
+            :collapse-text="collapseText"
+            :additional-items-class-name="$style.additionalOptions"
+            :additional-items-expanded-class-name="$style.additionalOptions_show"
+            :button-class-name="$style.showAllButton"
+          >
+            <template #default>
+              <template
+                v-for="option in filteredOptions"
+                :key="option.value"
+              >
+                <!-- Render tree option -->
+                <div
+                  :class="[
+                    $style.optionRow,
+                    option.children?.length && $style.optionRow_hasChildren,
+                    expandedCategories.has(option.value) && $style.optionRow_expanded,
+                  ]"
+                >
+                  <!-- Checkbox -->
+                  <div :class="$style.checkboxContainer">
+                    <input
+                      :id="`checkbox-${option.value}`"
+                      type="checkbox"
+                      :class="$style.checkboxInput"
+                      :checked="getCheckboxState(option) === 'checked'"
+                      :ref="el => setIndeterminate(el, option)"
+                      :disabled="disabled || option.disabled"
+                      @change="() => !disabled && handleTreeOptionToggle(option)"
+                      @click.stop
+                    />
+                    <label
+                      :for="`checkbox-${option.value}`"
+                      :class="[
+                        $style.checkboxIcon,
+                        getCheckboxState(option) === 'indeterminate' && $style.checkboxIcon_indeterminate,
+                      ]"
+                    />
+                  </div>
+
+                  <!-- Label -->
+                  <div
+                    :class="[
+                      $style.labelContainer,
+                      (disabled || option.disabled) && $style.labelContainer_disabled,
+                      (!disabled && !option.disabled) && $style.labelContainer_clickable,
+                    ]"
+                    @click.stop="() => handleOptionClick(option)"
+                  >
+                    <span :class="$style.checkboxText">{{ option.label }}</span>
+                  </div>
+
+                  <!-- Expand arrow -->
+                  <div
+                    v-if="option.children?.length"
+                    :class="[
+                      $style.expandArrow,
+                      expandedCategories.has(option.value) && $style.expandArrow_expanded,
+                    ]"
+                  />
+                </div>
+
+                <!-- Children container -->
+                <div
+                  v-if="option.children?.length && expandedCategories.has(option.value)"
+                  :class="$style.childrenContainer"
+                >
+                  <template
+                    v-for="child in option.children"
+                    :key="child.value"
+                  >
+                    <div
+                      :class="[
+                        $style.optionRow,
+                        $style.optionRow_child,
+                        child.children?.length && $style.optionRow_hasChildren,
+                        expandedCategories.has(child.value) && $style.optionRow_expanded,
+                      ]"
+                    >
+                      <!-- Child checkbox -->
+                      <div :class="$style.checkboxContainer">
+                        <input
+                          :id="`checkbox-${child.value}`"
+                          type="checkbox"
+                          :class="$style.checkboxInput"
+                          :checked="getCheckboxState(child) === 'checked'"
+                          :ref="el => setIndeterminate(el, child)"
+                          :disabled="disabled || child.disabled"
+                          @change="() => !disabled && handleTreeOptionToggle(child)"
+                          @click.stop
+                        />
+                        <label
+                          :for="`checkbox-${child.value}`"
+                          :class="[
+                            $style.checkboxIcon,
+                            getCheckboxState(child) === 'indeterminate' && $style.checkboxIcon_indeterminate,
+                          ]"
+                        />
+                      </div>
+
+                      <!-- Child label -->
+                      <div
+                        :class="[
+                          $style.labelContainer,
+                          (disabled || child.disabled) && $style.labelContainer_disabled,
+                          (!disabled && !child.disabled) && $style.labelContainer_clickable,
+                        ]"
+                        @click.stop="() => handleOptionClick(child)"
+                      >
+                        <span :class="$style.checkboxText">{{ child.label }}</span>
+                      </div>
+
+                      <!-- Child expand arrow -->
+                      <div
+                        v-if="child.children?.length"
+                        :class="[
+                          $style.expandArrow,
+                          expandedCategories.has(child.value) && $style.expandArrow_expanded,
+                        ]"
+                      />
+                    </div>
+
+                    <!-- Grandchildren (recursive would be better with a component) -->
+                    <div
+                      v-if="child.children?.length && expandedCategories.has(child.value)"
+                      :class="$style.childrenContainer"
+                    >
+                      <template
+                        v-for="grandchild in child.children"
+                        :key="grandchild.value"
+                      >
+                        <div :class="[$style.optionRow, $style.optionRow_grandchild]">
+                          <div :class="$style.checkboxContainer">
+                            <input
+                              :id="`checkbox-${grandchild.value}`"
+                              type="checkbox"
+                              :class="$style.checkboxInput"
+                              :checked="selectedValuesComputed.includes(grandchild.value)"
+                              :disabled="disabled || grandchild.disabled"
+                              @change="() => !disabled && handleTreeOptionToggle(grandchild)"
+                              @click.stop
+                            />
+                            <label
+                              :for="`checkbox-${grandchild.value}`"
+                              :class="$style.checkboxIcon"
+                            />
+                          </div>
+                          <div
+                            :class="[
+                              $style.labelContainer,
+                              (disabled || grandchild.disabled) && $style.labelContainer_disabled,
+                              (!disabled && !grandchild.disabled) && $style.labelContainer_clickable,
+                            ]"
+                            @click.stop="() => handleTreeOptionToggle(grandchild)"
+                          >
+                            <span :class="$style.checkboxText">{{ grandchild.label }}</span>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </template>
+          </ExpandableList>
+        </div>
+
+        <!-- Simple mode (checkbox list) -->
+        <ExpandableList
+          v-else
+          :max-visible-items="maxVisibleOptions"
+          :show-all-text="showAllText"
+          :collapse-text="collapseText"
+          :additional-items-class-name="$style.additionalOptions"
+          :additional-items-expanded-class-name="$style.additionalOptions_show"
+          :button-class-name="$style.showAllButton"
+        >
+          <template #default>
+            <div
+              v-for="option in filteredOptions"
+              :key="option.value"
+              :class="$style.option"
+            >
+              <CheckboxGroupUI
+                :field-names="[option.label]"
+                :selected-items="
+                  selectedValuesComputed.includes(option.value)
+                    ? [option.label]
+                    : []
+                "
+                @change="(checked: boolean) => handleCheckboxChange(checked, option.label)"
+                :with-in-dropdown="!staticMode"
+              />
+            </div>
+          </template>
+        </ExpandableList>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown mode -->
+  <BaseDropdown
+    v-else
+    v-model:is-open="isOpen"
+    :placement="placement"
+    :offset="offset"
+    :close-on-click-outside="closeOnClickOutside"
+    :close-on-escape="closeOnEscape"
+    :disabled="disabled"
+    :class="[className, $style.dropdownWrapper]"
+    :dropdown-class-name="$style.dropdown"
+    :aria-label="ariaLabel || 'Выпадающий список с множественным выбором'"
+  >
+    <template #trigger="{ toggle }">
+      <div
+        :class="[
+          $style.trigger,
+          triggerClassName,
+          disabled && $style.trigger_disabled,
+          isOpen && $style.trigger_open,
+          selectedValuesComputed.length > 0 && $style.trigger_has_selection,
+        ]"
+        @click="toggle"
+      >
+        <span :class="$style.triggerText">
+          {{
+            selectedValuesComputed.length > 0
+              ? selectedValuesComputed
+                .map(val => {
+                  const opt = normalizedOptions.find(o => o.value === val);
+                  return opt ? opt.label : val;
+                })
+                .join(', ')
+              : placeholder
+          }}
+        </span>
+        <svg
+          :class="[
+            $style.chevron,
+            isOpen && $style.chevron_open
+          ]"
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+        >
+          <path
+            d="M5 7.5L10 12.5L15 7.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </template>
+    
+    <template #default>
+      <div :class="$style.content">
+        <div v-if="enableSearch" :class="$style.searchContainer">
+          <SearchInput
+            v-model="searchQuery"
+            :placeholder="searchPlaceholder"
+            :class="$style.searchInput"
+          />
+        </div>
+
+        <div :class="$style.optionsList">
+          <!-- No options -->
+          <div v-if="filteredOptions.length === 0" :class="$style.noOptions">
+            {{ enableSearch && searchQuery ? 'Ничего не найдено' : 'Нет доступных опций' }}
+          </div>
+
+          <!-- Tree mode in dropdown -->
+          <div
+            v-else-if="treeMode"
+            :class="$style.treeContainer"
+          >
+            <!-- Same tree rendering as in static mode -->
+            <template
+              v-for="option in filteredOptions"
+              :key="option.value"
+            >
+              <div
+                :class="[
+                  $style.optionRow,
+                  option.children?.length && $style.optionRow_hasChildren,
+                  expandedCategories.has(option.value) && $style.optionRow_expanded,
+                ]"
+              >
+                <!-- Same checkbox structure -->
+                <div :class="$style.checkboxContainer">
+                  <input
+                    :id="`dropdown-checkbox-${option.value}`"
+                    type="checkbox"
+                    :class="$style.checkboxInput"
+                    :checked="getCheckboxState(option) === 'checked'"
+                    :ref="el => setIndeterminate(el, option)"
+                    :disabled="disabled || option.disabled"
+                    @change="() => !disabled && handleTreeOptionToggle(option)"
+                    @click.stop
+                  />
+                  <label
+                    :for="`dropdown-checkbox-${option.value}`"
+                    :class="[
+                      $style.checkboxIcon,
+                      getCheckboxState(option) === 'indeterminate' && $style.checkboxIcon_indeterminate,
+                    ]"
+                  />
+                </div>
+
+                <div
+                  :class="[
+                    $style.labelContainer,
+                    (disabled || option.disabled) && $style.labelContainer_disabled,
+                    (!disabled && !option.disabled) && $style.labelContainer_clickable,
+                  ]"
+                  @click.stop="() => handleOptionClick(option)"
+                >
+                  <span :class="$style.checkboxText">{{ option.label }}</span>
+                </div>
+
+                <div
+                  v-if="option.children?.length"
+                  :class="[
+                    $style.expandArrow,
+                    expandedCategories.has(option.value) && $style.expandArrow_expanded,
+                  ]"
+                />
+              </div>
+
+              <!-- Same children rendering -->
+              <div
+                v-if="option.children?.length && expandedCategories.has(option.value)"
+                :class="$style.childrenContainer"
+              >
+                <template
+                  v-for="child in option.children"
+                  :key="child.value"
+                >
+                  <!-- Child rendering -->
+                  <div
+                    :class="[
+                      $style.optionRow,
+                      $style.optionRow_child,
+                      child.children?.length && $style.optionRow_hasChildren,
+                      expandedCategories.has(child.value) && $style.optionRow_expanded,
+                    ]"
+                  >
+                    <!-- Same structure for children -->
+                    <div :class="$style.checkboxContainer">
+                      <input
+                        :id="`dropdown-checkbox-${child.value}`"
+                        type="checkbox"
+                        :class="$style.checkboxInput"
+                        :checked="getCheckboxState(child) === 'checked'"
+                        :ref="el => setIndeterminate(el, child)"
+                        :disabled="disabled || child.disabled"
+                        @change="() => !disabled && handleTreeOptionToggle(child)"
+                        @click.stop
+                      />
+                      <label
+                        :for="`dropdown-checkbox-${child.value}`"
+                        :class="[
+                          $style.checkboxIcon,
+                          getCheckboxState(child) === 'indeterminate' && $style.checkboxIcon_indeterminate,
+                        ]"
+                      />
+                    </div>
+
+                    <div
+                      :class="[
+                        $style.labelContainer,
+                        (disabled || child.disabled) && $style.labelContainer_disabled,
+                        (!disabled && !child.disabled) && $style.labelContainer_clickable,
+                      ]"
+                      @click.stop="() => handleOptionClick(child)"
+                    >
+                      <span :class="$style.checkboxText">{{ child.label }}</span>
+                    </div>
+
+                    <div
+                      v-if="child.children?.length"
+                      :class="[
+                        $style.expandArrow,
+                        expandedCategories.has(child.value) && $style.expandArrow_expanded,
+                      ]"
+                    />
+                  </div>
+
+                  <!-- Grandchildren -->
+                  <div
+                    v-if="child.children?.length && expandedCategories.has(child.value)"
+                    :class="$style.childrenContainer"
+                  >
+                    <template
+                      v-for="grandchild in child.children"
+                      :key="grandchild.value"
+                    >
+                      <div :class="[$style.optionRow, $style.optionRow_grandchild]">
+                        <div :class="$style.checkboxContainer">
+                          <input
+                            :id="`dropdown-checkbox-${grandchild.value}`"
+                            type="checkbox"
+                            :class="$style.checkboxInput"
+                            :checked="selectedValuesComputed.includes(grandchild.value)"
+                            :disabled="disabled || grandchild.disabled"
+                            @change="() => !disabled && handleTreeOptionToggle(grandchild)"
+                            @click.stop
+                          />
+                          <label
+                            :for="`dropdown-checkbox-${grandchild.value}`"
+                            :class="$style.checkboxIcon"
+                          />
+                        </div>
+                        <div
+                          :class="[
+                            $style.labelContainer,
+                            (disabled || grandchild.disabled) && $style.labelContainer_disabled,
+                            (!disabled && !grandchild.disabled) && $style.labelContainer_clickable,
+                          ]"
+                          @click.stop="() => handleTreeOptionToggle(grandchild)"
+                        >
+                          <span :class="$style.checkboxText">{{ grandchild.label }}</span>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <!-- Simple mode in dropdown -->
+          <ExpandableList
+            v-else
+            :max-visible-items="maxVisibleOptions"
+            :show-all-text="showAllText"
+            :collapse-text="collapseText"
+            :additional-items-class-name="$style.additionalOptions"
+            :additional-items-expanded-class-name="$style.additionalOptions_show"
+            :button-class-name="$style.showAllButton"
+          >
+            <template #default>
+              <div
+                v-for="option in filteredOptions"
+                :key="option.value"
+                :class="$style.option"
+              >
+                <CheckboxGroupUI
+                  :field-names="[option.label]"
+                  :selected-items="
+                    selectedValuesComputed.includes(option.value)
+                      ? [option.label]
+                      : []
+                  "
+                  @change="(checked: boolean) => handleCheckboxChange(checked, option.label)"
+                  with-in-dropdown
+                />
+              </div>
+            </template>
+          </ExpandableList>
+        </div>
+      </div>
+    </template>
+  </BaseDropdown>
+</template>
+
 <script setup lang="ts">
-    import { ref, computed, toRefs, withDefaults, defineProps } from 'vue';
-    import { CheckboxOption, CheckboxDropdownProps } from './types';
-    import CheckboxGroupUI from '../checkbox/CheckboxGroupUI.vue';
+    import { ref, computed, toRefs, withDefaults, onMounted, defineProps, defineEmits, onUnmounted, watch } from 'vue';
+    import CheckboxGroupUI from '../checkbox/CheckboxGroup.vue';
     import BaseDropdown from '../baseDropdown/BaseDropdown.vue';
     import SearchInput from '../searchInput/SearchInput.vue';
-    import ExpandableList from '../expandableList/ExpandableList.vue';
-    
-    // Пропсы с дефолтами
+    import ExpandableList from '../expandlableList/ExpandableList.vue';
+
+    export interface CheckboxOption {
+      value: string | number;
+      label: string;
+      disabled?: boolean;
+      children?: CheckboxOption[];
+    }
+
+    export interface CheckboxDropdownProps {
+      options: CheckboxOption[] | string[];
+      selectedValues?: (string | number)[];
+      defaultSelectedValues?: (string | number)[];
+      onChange?: (selectedValues: (string | number)[]) => void;
+      placeholder?: string;
+      title?: string;
+      enableSearch?: boolean;
+      searchPlaceholder?: string;
+      treeMode?: boolean;
+      maxVisibleOptions?: number;
+      showAllText?: string;
+      collapseText?: string;
+      staticMode?: boolean;
+      disabled?: boolean;
+      className?: string;
+      dropdownClassName?: string;
+      triggerClassName?: string;
+      placement?: "bottom-left" | "bottom-right" | "top-left" | "top-right";
+      offset?: number;
+      closeOnClickOutside?: boolean;
+      closeOnEscape?: boolean;
+      "aria-label"?: string;
+    }
+
+    // Определяем emits ПЕРЕД props
+    const emit = defineEmits<{
+      change: [values: (string | number)[]]
+    }>();
+
+    // Props with defaults
     const props = withDefaults(
       defineProps<CheckboxDropdownProps>(),
       {
@@ -23,23 +562,44 @@
         closeOnEscape: true,
       }
     );
-    
-    const { selectedValues, defaultSelectedValues, options } = toRefs(props);
-    
-    // Локальное состояние (для uncontrolled режима)
+
+    const { 
+      selectedValues, 
+      defaultSelectedValues, 
+      options,
+      title,
+      className,
+      placeholder,
+      enableSearch,
+      searchPlaceholder,
+      treeMode,
+      maxVisibleOptions,
+      showAllText,
+      collapseText,
+      staticMode,
+      disabled,
+      triggerClassName,
+      placement,
+      offset,
+      closeOnClickOutside,
+      closeOnEscape,
+      ariaLabel
+    } = toRefs(props);
+
+    // Local state
     const internalSelectedValues = ref<(string | number)[]>(
-      defaultSelectedValues.value ?? []
+      defaultSelectedValues?.value ?? []
     );
     const searchQuery = ref('');
     const isOpen = ref(false);
     const expandedCategories = ref<Set<string | number>>(new Set());
-    
-    // Выбранные значения: controlled или internal
+
+    // Computed selected values
     const selectedValuesComputed = computed(() =>
-      selectedValues.value ?? internalSelectedValues.value
+      selectedValues?.value ?? internalSelectedValues.value
     );
-    
-    // Нормализация опций: строки → CheckboxOption
+
+    // Normalized options
     const normalizedOptions = computed((): CheckboxOption[] =>
       options.value.map((option, index) => {
         if (typeof option === 'string') {
@@ -48,21 +608,55 @@
         return option;
       })
     );
-    
-    // Получение всех потомков для древовидной структуры
-    const getAllChildren = (option: CheckboxOption): (string | number)[] =>
-      option.children ? option.children.flatMap(getAllChildren) : [option.value];
-    
-    // Фильтрация по поиску
+
+    // Filtered options
     const filteredOptions = computed(() => {
-      if (!props.enableSearch || !searchQuery.value.trim()) return normalizedOptions.value;
+      if (!enableSearch.value || !searchQuery.value.trim()) return normalizedOptions.value;
       const query = searchQuery.value.toLowerCase().trim();
       return normalizedOptions.value.filter((option) =>
         option.label.toLowerCase().includes(query)
       );
     });
-    
-    // Переключение раскрытия категории
+
+    // Helper methods
+    const getAllChildren = (option: CheckboxOption): (string | number)[] =>
+      option.children ? option.children.flatMap(getAllChildren) : [option.value];
+
+    const getCheckboxState = (option: CheckboxOption) => {
+      if (!treeMode.value || !option.children) {
+        return selectedValuesComputed.value.includes(option.value)
+          ? 'checked'
+          : 'unchecked';
+      }
+
+      const childValues = getAllChildren(option);
+      const selectedCount = childValues.filter((v) =>
+        selectedValuesComputed.value.includes(v)
+      ).length;
+
+      return selectedCount === 0
+        ? 'unchecked'
+        : selectedCount === childValues.length
+          ? 'checked'
+          : 'indeterminate';
+    };
+
+    const setIndeterminate = (el: HTMLInputElement | null, option: CheckboxOption) => {
+      if (el) {
+        el.indeterminate = getCheckboxState(option) === 'indeterminate';
+      }
+    };
+
+    const handleOptionClick = (option: CheckboxOption) => {
+      if (disabled.value || option.disabled) return;
+      
+      if (option.children?.length) {
+        toggleCategory(option.value);
+      } else {
+        handleTreeOptionToggle(option);
+      }
+    };
+
     const toggleCategory = (categoryValue: string | number) => {
       const next = new Set(expandedCategories.value);
       next.has(categoryValue)
@@ -70,45 +664,9 @@
         : next.add(categoryValue);
       expandedCategories.value = next;
     };
-    
-    // Состояние чекбокса для древовидной структуры
-    const getCheckboxState = (option: CheckboxOption) => {
-      if (!props.treeMode || !option.children) {
-        return selectedValuesComputed.value.includes(option.value)
-          ? 'checked'
-          : 'unchecked';
-      }
-    
-      const childValues = getAllChildren(option);
-      const selectedCount = childValues.filter((v) =>
-        selectedValuesComputed.value.includes(v)
-      ).length;
-    
-      return selectedCount === 0
-        ? 'unchecked'
-        : selectedCount === childValues.length
-          ? 'checked'
-          : 'indeterminate';
-    };
-    
-    // Обработчик изменения чекбоксов (простой режим)
-    const handleCheckboxChange = (newValue: boolean, label: string) => {
-      const option = filteredOptions.value.find((opt) => opt.label === label);
-      if (!option) return;
-    
-      const newSelected = newValue
-        ? [...selectedValuesComputed.value, option.value]
-        : selectedValuesComputed.value.filter((v) => v !== option.value);
-    
-      if (selectedValues.value === undefined) {
-        internalSelectedValues.value = newSelected;
-      }
-      props.onChange?.(newSelected);
-    };
-    
-    // Обработчик для древовидной структуры
+
     const handleTreeOptionToggle = (option: CheckboxOption) => {
-      const newSelected = props.treeMode && option.children
+      const newSelected = treeMode.value && option.children
         ? (() => {
             const childValues = getAllChildren(option);
             const allSelected = childValues.every((v) =>
@@ -121,286 +679,41 @@
         : selectedValuesComputed.value.includes(option.value)
           ? selectedValuesComputed.value.filter((value) => value !== option.value)
           : [...selectedValuesComputed.value, option.value];
-    
-      if (selectedValues.value === undefined) {
+
+      if (selectedValues?.value === undefined) {
         internalSelectedValues.value = newSelected;
       }
-      props.onChange?.(newSelected);
+      
+      // Emit event
+      emit('change', newSelected);
     };
-    
-    // Рендеринг одной опции древовидной структуры
-    const renderTreeOption = (option: CheckboxOption, level: number) => (
-      <div key={option.value}>
-        <div
-          class={[
-            $style.optionRow,
-            level > 0 && $style.optionRow_child,
-            option.children?.length && $style.optionRow_hasChildren,
-            expandedCategories.value.has(option.value) && $style.optionRow_expanded,
-          ]}
-        >
-          <div class={$style.checkboxContainer}>
-            <input
-              id={`checkbox-${option.value}-${level}`}
-              type="checkbox"
-              class={$style.checkboxInput}
-              checked={getCheckboxState(option) === 'checked'}
-              ref={(el: HTMLInputElement | null) => {
-                if (el) el.indeterminate = getCheckboxState(option) === 'indeterminate';
-              }}
-              disabled={props.disabled || option.disabled}
-              onChange={() => !props.disabled && handleTreeOptionToggle(option)}
-              onClick={(e: MouseEvent) => e.stopPropagation()}
-            />
-            <label
-              htmlFor={`checkbox-${option.value}-${level}`}
-              class={[
-                $style.checkboxIcon,
-                getCheckboxState(option) === 'indeterminate' && $style.checkboxIcon_indeterminate,
-              ]}
-            />
-          </div>
-    
-          <div
-            class={[
-              $style.labelContainer,
-              (props.disabled || option.disabled) && $style.labelContainer_disabled,
-              (!props.disabled && !option.disabled) && $style.labelContainer_clickable,
-            ]}
-            onClick={(e: MouseEvent) => {
-              e.stopPropagation();
-              if (!props.disabled && !option.disabled) {
-                if (option.children?.length) {
-                  toggleCategory(option.value);
-                } else {
-                  handleTreeOptionToggle(option);
-                }
-              }
-            }}
-          >
-            <span class={$style.checkboxText}>{option.label}</span>
-          </div>
-    
-          {option.children?.length && (
-            <div
-              class={[
-                $style.expandArrow,
-                expandedCategories.value.has(option.value) && $style.expandArrow_expanded,
-              ]}
-            />
-          )}
-        </div>
-    
-        {option.children?.length && (
-          <div
-            class={[
-              $style.childrenContainer,
-              expandedCategories.value.has(option.value) && $style.childrenContainer_expanded,
-            ]}
-          >
-            {option.children!.map((child) => renderTreeOption(child, level + 1))}
-          </div>
-        )}
-      </div>
-    );
-    </script>
-    
-    <template>
-      <div
-        :class="[
-          $style.staticContainer,
-          props.className,
-          props.staticMode && $style.staticMode,
-        ]"
-      >
-        <h3 v-if="props.title" :class="$style.staticTitle">{{ props.title }}</h3>
-    
-        <div :class="$style.content">
-          <!-- Поиск -->
-          <div v-if="props.enableSearch" :class="$style.searchContainer">
-            <SearchInput
-              v-model="searchQuery"
-              :placeholder="props.searchPlaceholder"
-              :class="$style.searchInput"
-            />
-          </div>
 
-          <div :class="$style.optionsList">
-        <!-- Нет результатов поиска или опций -->
-        <div v-if="filteredOptions.length === 0" :class="$style.noOptions">
-          {{ props.enableSearch && searchQuery.value ? 'Ничего не найдено' : 'Нет доступных опций' }}
-        </div>
+    const handleCheckboxChange = (newValue: boolean, label: string) => {
+      const option = filteredOptions.value.find((opt) => opt.label === label);
+      if (!option) return;
 
-        <!-- Древовидный режим -->
-        <div
-          v-else-if="props.treeMode"
-          :class="$style.treeContainer"
-        >
-          <ExpandableList
-            :maxVisibleItems="props.maxVisibleOptions"
-            :showAllText="props.showAllText"
-            :collapseText="props.collapseText"
-            :additionalItemsClassName="$style.additionalOptions"
-            :additionalItemsExpandedClassName="$style.additionalOptions_show"
-            :buttonClassName="$style.showAllButton"
-          >
-            <template
-              v-for="option in filteredOptions"
-              :key="option.value"
-            >
-              {{ renderTreeOption(option, 0) }}
-            </template>
-          </ExpandableList>
-        </div>
+      const newSelected = newValue
+        ? [...selectedValuesComputed.value, option.value]
+        : selectedValuesComputed.value.filter((v) => v !== option.value);
 
-        <!-- Простой режим (список чекбоксов) -->
-        <ExpandableList
-          v-else
-          :maxVisibleItems="props.maxVisibleOptions"
-          :showAllText="props.showAllText"
-          :collapseText="props.collapseText"
-          :additionalItemsClassName="$style.additionalOptions"
-          :additionalItemsExpandedClassName="$style.additionalOptions_show"
-          :buttonClassName="$style.showAllButton"
-        >
-          <div
-            v-for="option in filteredOptions"
-            :key="option.value"
-            :class="$style.option"
-          >
-            <CheckboxGroupUI
-              :fieldNames="[option.label]"
-              :selectedItems="
-                selectedValuesComputed.value.includes(option.value)
-                  ? [option.label]
-                  : []
-              "
-              @change="handleCheckboxChange"
-              :withInDropdown="!props.staticMode"
-            />
-          </div>
-        </ExpandableList>
-      </div>
-    </div>
-  </div>
+      if (selectedValues?.value === undefined) {
+        internalSelectedValues.value = newSelected;
+      }
+      
+      emit('change', newSelected);
+    };
 
-  <!-- Обычный режим с выпадашкой (не staticMode) -->
-  <BaseDropdown
-    v-if="!props.staticMode"
-    :trigger="
-      <div
-        :class="[
-          $style.trigger,
-          props.triggerClassName,
-          props.disabled && $style.trigger_disabled,
-          isOpen && $style.trigger_open,
-          selectedValuesComputed.value.length > 0 && $style.trigger_has_selection,
-        ]"
-      >
-        <span :class="$style.triggerText">
-          {{
-            selectedValuesComputed.value.length > 0
-              ? selectedValuesComputed.value
-                .map(val => {
-                  const opt = normalizedOptions.value.find(o => o.value === val);
-                  return opt ? opt.label : val;
-                })
-                .join(', ')
-              : props.placeholder
-          }}
-        </span>
-        <svg
-          :class="[
-            $style.chevron,
-            isOpen && $style.chevron_open
-          ]"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-        >
-          <path
-            d="M5 7.5L10 12.5L15 7.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-    "
-    v-model:isOpen="isOpen"
-    :placement="props.placement"
-    :offset="props.offset"
-    :closeOnClickOutside="props.closeOnClickOutside"
-    :closeOnEscape="props.closeOnEscape"
-    :disabled="props.disabled"
-    :class="[props.className, $style.dropdownWrapper]"
-    :dropdownClassName="$style.dropdown"
-    :aria-label="props['aria-label'] || 'Выпадающий список с множественным выбором'"
-  >
-    <div :class="$style.content">
-      <div v-if="props.enableSearch" :class="$style.searchContainer">
-        <SearchInput
-          v-model="searchQuery"
-          :placeholder="props.searchPlaceholder"
-          :class="$style.searchInput"
-        />
-      </div>
+    onMounted(() => {
+      console.log('Компонент смонтирован');
+      console.log('Props options:', props.options);
+      console.log('Normalized options:', normalizedOptions.value);
+      console.log('Filtered options:', filteredOptions.value);
+    });
 
-      <div :class="$style.optionsList">
-        <div v-if="filteredOptions.length === 0" :class="$style.noOptions">
-          {{ props.enableSearch && searchQuery.value ? 'Ничего не найдено' : 'Нет доступных опций' }}
-        </div>
-
-        <div v-else-if="props.treeMode" :class="$style.treeContainer">
-          <ExpandableList
-            :maxVisibleItems="props.maxVisibleOptions"
-            :showAllText="props.showAllText"
-            :collapseText="props.collapseText"
-            :additionalItemsClassName="$style.additionalOptions"
-            :additionalItemsExpandedClassName="$style.additionalOptions_show"
-            :buttonClassName="$style.showAllButton"
-          >
-            <template
-              v-for="option in filteredOptions"
-              :key="option.value"
-            >
-              {{ renderTreeOption(option, 0) }}
-            </template>
-          </ExpandableList>
-        </div>
-
-        <ExpandableList
-          v-else
-          :maxVisibleItems="props.maxVisibleOptions"
-          :showAllText="props.showAllText"
-          :collapseText="props.collapseText"
-          :additionalItemsClassName="$style.additionalOptions"
-          :additionalItemsExpandedClassName="$style.additionalOptions_show"
-          :buttonClassName="$style.showAllButton"
-        >
-          <div
-            v-for="option in filteredOptions"
-            :key="option.value"
-            :class="$style.option"
-          >
-            <CheckboxGroupUI
-              :fieldNames="[option.label]"
-              :selectedItems="
-                selectedValuesComputed.value.includes(option.value)
-                  ? [option.label]
-                  : []
-              "
-              @change="handleCheckboxChange"
-              :withInDropdown="true"
-            />
-          </div>
-        </ExpandableList>
-      </div>
-    </div>
-  </BaseDropdown>
-</template>
+    onUnmounted(() => {
+      console.log('Компонент размонтирован')
+    })
+</script>
 
 <style module>
 
