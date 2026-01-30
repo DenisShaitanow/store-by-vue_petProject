@@ -116,10 +116,6 @@
     }
     })
 
-    watch(() => props.type ,() => {
-        console.log(props.type)
-    }, { immediate: true })
-
     const isToggle = computed(() => 
     ['like', 'notification', 'theme', 'basket'].includes(props.type)
     )

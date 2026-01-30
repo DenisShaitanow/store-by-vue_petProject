@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots, defineEmits, defineProps, withDefaults, useCssModule, onMounted } from 'vue'
+import { computed, ref, useSlots, defineEmits, defineProps, withDefaults, useCssModule, onMounted, VNode } from 'vue'
 
 export interface ExpandableListProps {
   /* Максимальное количество видимых элементов */
@@ -102,7 +102,7 @@ const style = useCssModule()
 const slots = useSlots()
 const isExpanded = ref(false)
 
-const children = computed(() => {
+const children = computed<VNode[]>(() => {
   if (!slots.default) return []
   
   const slotContent = slots.default()
@@ -159,9 +159,6 @@ const handleToggle = () => {
   emit('toggle', newState)
 }
 
-onMounted(() => {
-  console.log(children.legth)
-})
 </script>
 
 

@@ -703,16 +703,6 @@
       emit('change', newSelected);
     };
 
-    onMounted(() => {
-      console.log('Компонент смонтирован');
-      console.log('Props options:', props.options);
-      console.log('Normalized options:', normalizedOptions.value);
-      console.log('Filtered options:', filteredOptions.value);
-    });
-
-    onUnmounted(() => {
-      console.log('Компонент размонтирован')
-    })
 </script>
 
 <style module>

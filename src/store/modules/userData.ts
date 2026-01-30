@@ -90,6 +90,7 @@ const mutations = {
       // Сохраняем оба массива
       localStorage.setItem('products', JSON.stringify(state.products));
       localStorage.setItem('favoriteItems', JSON.stringify(state.favoriteItems));
+      console.log(JSON.stringify(state.favoriteItems))
     }
   },
 

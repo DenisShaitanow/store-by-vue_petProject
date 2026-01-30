@@ -1,10 +1,14 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Layout from './pages/layout/Layout.vue'
 import HomePage from './pages/home/HomePage.vue'
+import AboutPage from './pages/about_project/AboutPage.vue';
+import CardPage from './pages/cardPage/CardPage.vue';
+import AuthPage from './pages/authPage/AuthPage.vue'
+import RegistrationPage from './pages/registration/registrationPage.vue'
 /*import AboutPage from '../pages/about_project/AboutPage.vue'
 import CardPage from '../pages/cardPage/CardPage.vue'
-import RegistrationPage from '../pages/registration/RegistrationPage.vue'
-import AuthPage from '../pages/authPage/AuthPage.vue'
+
+
 import FavoritsPage from '../pages/favorits/FavoritsPage.vue'
 import BasketPage from '../pages/basket/BasketPage.vue'
 import FormOderPage from '../pages/formOder/FormOrder.vue'
@@ -22,7 +26,7 @@ const routes: RouteRecordRaw[] = [
         name: 'home',
         component: HomePage
       },
-      /*{
+      {
         path: '/about',
         name: 'about',
         component: AboutPage
@@ -31,18 +35,19 @@ const routes: RouteRecordRaw[] = [
         path: '/:idCard',
         name: 'card',
         component: CardPage,
-        props: true // Это позволит передавать параметры как props
-      },
-      {
-        path: '/registration',
-        name: 'registration',
-        component: RegistrationPage
       },
       {
         path: '/loginClient',
         name: 'login',
         component: AuthPage
       },
+      {
+        path: '/registration',
+        name: 'registration',
+        component: RegistrationPage
+      },
+      /*
+      
       {
         path: '/favoritsProducts',
         name: 'favorits',

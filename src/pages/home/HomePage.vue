@@ -1,5 +1,5 @@
 <template>
-  <div>
+  
     <div :class="$style.rowContainer">
       <div :class="$style.containerFixed">
         <div :class="$style.filters">
@@ -34,22 +34,22 @@
       <div :class="$style.products" ref="productsContainerRef">
         <SpinnerPulse v-if="isLoading" :class="$style.spinner" />
         <template v-else>
-          <!-- Первая карточка с установленным рефом -->
-          <ProductCard
-            v-if="productsToShow[0]"
-            :ref="(el) => { productCardRef = el }"
-            :class="$style.product"
-            :key="productsToShow[0].id"
-            :title="productsToShow[0].title"
-            :description="productsToShow[0].description"
-            :short-description="productsToShow[0].shortDescription"
-            :price="productsToShow[0].price"
-            :id="productsToShow[0].id"
-            :image="productsToShow[0].image"
-            :category="productsToShow[0].category"
-            :sex="productsToShow[0].sex"
-            :is-liked="productsToShow[0].isLiked"
-          />
+             <div ref="productCardRef" v-if="productsToShow[0]">
+                <ProductCard
+                    :class="$style.product"
+                    :key="productsToShow[0].id"
+                    :title="productsToShow[0].title"
+                    :description="productsToShow[0].description"
+                    :short-description="productsToShow[0].shortDescription"
+                    :price="productsToShow[0].price"
+                    :id="productsToShow[0].id"
+                    :image="productsToShow[0].image"
+                    :category="productsToShow[0].category"
+                    :sex="productsToShow[0].sex"
+                    :is-liked="productsToShow[0].isLiked"
+                />
+            </div>
+        
 
           <!-- Остальные карточки без рефов -->
           <ProductCard
@@ -72,10 +72,11 @@
     <div v-if="isLoadingMore" :class="$style.spinnerContainer">
       <SpinnerPulse :class="$style.spinnerLoadCards" />
     </div>
-  </div>
+  
 </template>
 
 <script setup lang="ts">
+
     import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
     import { useStore } from 'vuex'
     import ProductCard from '../../ui/productCard/ProductCard.vue'
@@ -114,6 +115,24 @@
     const selectedCategories = ref<(string | number)[]>([])
     const selectedCategoriesData = ref<string[]>([])
 
+    // Добавляем таймер для дебаунсинга
+    let scrollTimeout: NodeJS.Timeout | null = null
+
+    watch(
+        () => productsToShow.value.length,
+        async () => {
+            if (productsToShow.value.length < 2) {
+                await nextTick(); 
+            if (productCardRef.value) {
+                updateProductsToShow();
+                
+            }
+            } 
+        },
+        { immediate: true }
+    );
+ 
+
     // Store
     const store = useTypedStore()
 
@@ -122,6 +141,15 @@
     const selectProducts = computed(() => 
         store.getters['userData/selectProducts'] || []
     );
+
+      const selectLoadingProducts = computed(() => 
+        store.getters['userData/selectLoadingProducts'] || false
+    );
+
+    
+    watch(selectLoadingProducts, (newValue: boolean) => {
+        isLoading.value = newValue
+    })
 
     const filteredProducts = computed<IProduct[]>(() => {
     return products.value.filter((product) => {
@@ -145,12 +173,12 @@
 
     // Методы
     const calculateVisibleProductsCount = (width: number) => {
-    if (!productCardRef.value) return 8
-    const productCardWidth = productCardRef.value.clientWidth
-    const cardsPerRow = Math.floor(
-        (width - 0.1 * width) / (productCardWidth || 160)
-    )
-    return cardsPerRow * 6
+        if (!productCardRef.value) return 1
+        const productCardWidth = productCardRef.value.clientWidth
+        const cardsPerRow = Math.floor(
+            (width - 0.1 * width) / (productCardWidth || 160)
+        )
+        return cardsPerRow * 6
     }
 
     const loadProducts = async () => {
@@ -161,47 +189,70 @@
     }
 
     const updateProductsToShow = () => {
-    if (productsContainerRef.value) {
-        const containerWidth = productsContainerRef.value.clientWidth
-        const visibleCardsCount = calculateVisibleProductsCount(containerWidth)
-        productsToShow.value = filteredProducts.value.slice(0, visibleCardsCount)
-    }
+        if (productsContainerRef.value) {
+            const containerWidth = productsContainerRef.value.clientWidth
+            const visibleCardsCount = calculateVisibleProductsCount(containerWidth)
+            productsToShow.value = filteredProducts.value.slice(0, visibleCardsCount)
+        }
     }
 
     const handleResize = () => {
-    if (productsContainerRef.value) {
-        const currentWidth = productsContainerRef.value.clientWidth
-        const newVisibleCount = calculateVisibleProductsCount(currentWidth)
-        productsToShow.value = filteredProducts.value.slice(0, newVisibleCount)
-    }
+        if (productsContainerRef.value) {
+            const currentWidth = productsContainerRef.value.clientWidth
+            const newVisibleCount = calculateVisibleProductsCount(currentWidth)
+            productsToShow.value = filteredProducts.value.slice(0, newVisibleCount)
+        }
     }
 
+    if (scrollTimeout) {
+    clearTimeout(scrollTimeout)
+  }
+  
+ 
     const handleScroll = () => {
-    const bottomReached =
-        document.documentElement.scrollTop + window.innerHeight >=
-        document.documentElement.offsetHeight - 20
+            // Дебаунсинг
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout)
+            }
 
-    if (
-        bottomReached &&
-        !isLoadingMore.value &&
-        productsToShow.value.length < products.value.length
-    ) {
-        isLoadingMore.value = true
+            scrollTimeout = setTimeout(() => {
+                const bottomReached =
+                document.documentElement.scrollTop + window.innerHeight >=
+                document.documentElement.offsetHeight - 50
 
-        const nextBatchSize = calculateVisibleProductsCount(
-        productsContainerRef.value?.clientWidth || 1200
-        )
-        const startIndex = productsToShow.value.length
-        const endIndex = Math.min(startIndex + nextBatchSize, products.value.length)
-        
-        setTimeout(() => {
-        productsToShow.value = [
-            ...productsToShow.value,
-            ...filteredProducts.value.slice(startIndex, endIndex)
-        ]
-        isLoadingMore.value = false
-        }, 1000)
-    }
+                if (
+                bottomReached &&
+                !isLoadingMore.value &&
+                productsToShow.value.length < products.value.length
+                ) {
+
+                
+                    isLoadingMore.value = true
+                    console.log('Loading started...')
+
+                    const nextBatchSize = calculateVisibleProductsCount(
+                        productsContainerRef.value?.clientWidth || 1200
+                    )
+                    const startIndex = productsToShow.value.length
+                    const endIndex = Math.min(startIndex + nextBatchSize, products.value.length)
+                    console.log('Loading:', startIndex, 'to', endIndex)
+
+                    // Имитация асинхронной загрузки с задержкой
+                    setTimeout(() => {
+                        // 3. Добавляем новые товары
+                        productsToShow.value = [
+                        ...productsToShow.value,
+                        ...filteredProducts.value.slice(startIndex, endIndex)
+                        ]
+
+                        // 4. Ждем отрисовки DOM и скрываем спиннер
+                        nextTick()
+                        isLoadingMore.value = false
+                        console.log('Loading complete. Total:', productsToShow.value.length)
+                        
+                    }, 1000) // Задержка для имитации загрузки
+                }
+            }, 150) // Задержка для дебаунсинга
     }
 
     const handleSex = (e: { target: { id: string } }) => {
@@ -226,32 +277,26 @@
 
     // Хуки жизненного цикла
     onMounted(() => {
-    loadProducts()
-    
-    // Ждем отрисовки DOM для получения правильных размеров
-    nextTick(() => {
-        updateProductsToShow()
-    })
-    console.log(products.value);
-    
-    // Добавляем слушатели событий
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('scroll', handleScroll)
-    })
+        loadProducts()
+        
+        // Ждем отрисовки DOM для получения правильных размеров
+        nextTick(() => {
+            handleResize()
+        })  
+        
+        // Добавляем слушатели событий
+        window.addEventListener('resize', handleResize)
+        window.addEventListener('scroll', handleScroll)
+        })
 
-    onUnmounted(() => {
-    window.removeEventListener('resize', handleResize)
-    window.removeEventListener('scroll', handleScroll)
+        onUnmounted(() => {
+        window.removeEventListener('resize', handleResize)
+        window.removeEventListener('scroll', handleScroll)
     })
 
     // Наблюдатели
     watch(filteredProducts, () => {
         updateProductsToShow()
-    })
-
-    // Наблюдатель для установки loading состояния
-    watch(() => store.getters.selectLoadingProducts, (newValue) => {
-        isLoading.value = newValue
     })
 
     // Наблюдатель для initial load продуктов

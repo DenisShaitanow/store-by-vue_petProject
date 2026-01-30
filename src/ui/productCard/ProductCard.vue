@@ -12,8 +12,7 @@
     <p :class="[$style.description]">{{ props.shortDescription }}</p>
     <span
       ref="heartlikeRef"
-      class="product-card__like"
-      :class="[{ [$style.like-done]: isLiked },
+      :class="[{ [$style.likeDone]: isLiked },
                     $style.like]"
       @click.stop="handleLike"
     ></span>
@@ -73,7 +72,7 @@
 
     const handleLike = () => {
     // Диспатч экшена для добавления/удаления из избранного
-    store.dispatch('userUIData/addAndDeleteToFavoriteItems', props.id)
+    store.dispatch('userData/toggleFavorite', props.id)
     isLiked.value = !isLiked.value
     }
 
@@ -170,7 +169,7 @@
     background-image: url("../assets/like.svg");
     }
 
-    .like-done {
+    .likeDone {
     background-image: url("../assets/like-red.svg");
     }
 
