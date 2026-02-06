@@ -1,236 +1,356 @@
 
+<template>
+  <div :class="$style.calendar">
+    <div :class="$style.header">
+      <BaseDropdown
+        :isOpen="isOpenMonth"
+        @update:isOpen="isOpenMonth = $event"
+      >
+        <template #trigger>
+          <div :class="$style.triggerCont">
+            {{ months[currentDate.getMonth()] }}
+          </div>
+        </template>
+        <template #default>
+          <ul :class="$style.contentList">
+            <li 
+              v-for="(month, index) in months" 
+              :key="month"
+              @click="changeMonth(index)"
+              :class="{ [$style.active]: currentDate.getMonth() === index }"
+            >
+              {{ month }}
+            </li>
+          </ul>
+        </template>
+      </BaseDropdown>
+      <BaseDropdown
+        :isOpen="isOpenYear"
+        @update:isOpen="isOpenYear = $event"
+      >
+        <template #trigger>
+          <div :class="$style.triggerCont">
+            {{ currentDate.getFullYear() }}
+          </div>
+        </template>
+        <template #default>
+          <ul :class="$style.contentList">
+            <li 
+              v-for="year in years" 
+              :key="year"
+              @click="changeYear(parseInt(year))"
+              :class="{ [$style.active]: currentDate.getFullYear() === parseInt(year) }"
+            >
+              {{ year }}
+            </li>
+          </ul>
+        </template>
+      </BaseDropdown>
+      
+    </div>
+    
+    <div :class="$style.weekdays">
+      <div v-for="day in ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']" :key="day">
+        {{ day }}
+      </div>
+    </div>
+    
+    <div :class="$style.days">
+      <div
+        v-for="date in dates"
+        :key="date.getTime()"
+        :class="[
+          $style.day,
+          {
+            [$style.selected]: isSelected(date),
+            [$style.today]: isToday(date),
+            [$style.otherMonth]: date.getMonth() !== currentDate.getMonth()
+          }
+        ]"
+        @click="selectDate(date)"
+      >
+        {{ date.getDate() }}
+      </div>
+    </div>
+      <div :class="$style.dpFooter" >
+          <button
+            type="button"
+            :class="[$style.dpbtn, $style.dpbtnCancel]"
+            
+          >
+            Отменить
+          </button>
+          <button
+            type="button"
+            :class="[$style.dpbtn, $style.dpbtnApply]"
+            
+          >
+            Выбрать
+          </button>
+    </div>
+    
+  </div>
+</template>
 
 <script setup lang="ts">
-  
-    import { ref, computed, watch } from 'vue'
-    import VDatePicker from 'vue-date-picker/src/datepicker.vue';
+  import { ref, computed, watch, defineProps, defineEmits } from 'vue'
+  import BaseDropdown from '../baseDropdown/BaseDropdown.vue'
+  import  Button from '../button/Button.vue';
 
+  const props = defineProps({
+    modelValue: Date
+  })
 
+  const emit = defineEmits(['update:modelValue'])
+
+  // Основная дата для отображения календаря
+  const currentDate = ref(props.modelValue ? new Date(props.modelValue) : new Date())
+  const selectedDate = ref(props.modelValue ? new Date(props.modelValue) : null)
+
+  // Отслеживаем изменения modelValue извне
+  watch(() => props.modelValue, (newValue) => {
+    if (newValue) {
+      const newDate = new Date(newValue)
+      currentDate.value = newDate
+      selectedDate.value = newDate
+    }
+  })
+
+  const isOpenMonth = ref(false)
+  const isOpenYear = ref(false)
+
+  const months = [
+    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+  ]
+
+  const years = (() => {
+    const arr: string[] = []
+    for (let year = 1950; year <= 2026; year++) {
+      arr.push(year.toString())
+    }
+    return arr
+  })()
+
+  // Функция изменения месяца
+  const changeMonth = (monthIndex: number) => {
+    const newDate = new Date(currentDate.value)
+    newDate.setMonth(monthIndex)
+    currentDate.value = newDate
+    isOpenMonth.value = false
+  }
+
+  // Функция изменения года
+  const changeYear = (year: number) => {
+    const newDate = new Date(currentDate.value)
+    newDate.setFullYear(year)
+    currentDate.value = newDate
+    isOpenYear.value = false
+  }
+
+  // Генерация дней календаря
+  const dates = computed(() => {
+    const year = currentDate.value.getFullYear()
+    const month = currentDate.value.getMonth()
     
+    // Первый день месяца
+    const firstDay = new Date(year, month, 1)
+    // Последний день месяца
+    const lastDay = new Date(year, month + 1, 0)
     
-    interface Props {
-      inline?: boolean
-      id?: string
-      className?: string
-      modelValue?: Date | null
-      onChange?: (date: Date | null) => void
+    const dates: Date[] = []
+    
+    // Дни предыдущего месяца (понедельник - воскресенье)
+    // Получаем день недели первого дня месяца (0 - воскресенье, 1 - понедельник, ...)
+    const firstDayOfWeek = firstDay.getDay() // 0-6
+    // Преобразуем к понедельнику = 0
+    const mondayBasedDay = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
+    
+    // Добавляем дни из предыдущего месяца
+    const prevMonthLastDay = new Date(year, month, 0).getDate()
+    for (let i = mondayBasedDay - 1; i >= 0; i--) {
+      const date = new Date(year, month - 1, prevMonthLastDay - i)
+      dates.push(date)
     }
     
-    // Инициализация состояний
-    const props = withDefaults(defineProps<Props>(), {
-      inline: true,
-      modelValue: null,
-    })
-    
-    const emit = defineEmits(['update:modelValue'])
-    
-    // Внутреннее отслеживаемое значение
-    const localValue = ref(props.modelValue)
-    
-    // Двухсторонняя связь через v-model
-    watch(
-      () => props.modelValue,
-      (newVal) => {
-        localValue.value = newVal
-      },
-    )
-    
-    // Обработка изменения даты
-    const handleChange = (date: Date | null) => {
-      emit('update:modelValue', date)
-      props.onChange?.(date)
+    // Дни текущего месяца
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      dates.push(new Date(year, month, i))
     }
     
-    // Вспомогательные классы
-    const containerClasses = computed(() => {
-      return ['calendar-container', props.className || '']
-    })
+    // Дни следующего месяца (чтобы заполнить до 42 ячеек - 6 недель)
+    const totalCells = 42 // 6 недель * 7 дней
+    const daysToAdd = totalCells - dates.length
+    for (let i = 1; i <= daysToAdd; i++) {
+      dates.push(new Date(year, month + 1, i))
+    }
     
+    return dates
+  })
+
+  // Навигация по месяцам
+  const prevMonth = () => {
+    const newDate = new Date(currentDate.value)
+    newDate.setMonth(newDate.getMonth() - 1)
+    currentDate.value = newDate
+  }
+
+  const nextMonth = () => {
+    const newDate = new Date(currentDate.value)
+    newDate.setMonth(newDate.getMonth() + 1)
+    currentDate.value = newDate
+  }
+
+  // Выбор даты
+  const selectDate = (date: Date) => {
+    // Если выбран день из другого месяца, меняем текущий месяц
+    if (date.getMonth() !== currentDate.value.getMonth()) {
+      currentDate.value = new Date(date.getFullYear(), date.getMonth(), 1)
+    }
+    
+    selectedDate.value = date
+    emit('update:modelValue', date)
+  }
+
+  // Проверка, выбрана ли дата
+  const isSelected = (date: Date) => {
+    if (!selectedDate.value) return false
+    
+    return date.getDate() === selectedDate.value.getDate() &&
+      date.getMonth() === selectedDate.value.getMonth() &&
+      date.getFullYear() === selectedDate.value.getFullYear()
+  }
+
+  // Проверка, сегодняшняя ли дата
+  const isToday = (date: Date) => {
+    const today = new Date()
+    return date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+  }
 </script>
-    
-<template>
-      <div  :id="props.id">
-        <VDatePicker
-          v-model="localValue"
-          :inline="props.inline"
-          @update:model-value="handleChange"
-          teleport="body"
-          :is24hr="true"
-          color="#4CAF50"
-        />
-      </div>
-</template>
-    
-<style scoped lang="scss">
-    .calendar-container {
-      box-sizing: border-box;
-      width: 280px;
-      height: 360px;
-      color: var(--calendar-text);
-      font-family: var(--calendar-font);
-      border: 1px solid var(--calendar-border);
-      border-radius: var(--calendar-radius);
-    }
-    
-    .calendar-container .vp-calendar {
-      position: relative;
-      box-sizing: border-box;
-      width: 280px;
-      height: 360px;
-      padding: 16px;
-      overflow: hidden;
-      background: var(--calendar-bg);
-      border: 1px solid var(--calendar-border);
-      border-radius: var(--calendar-radius);
-    }
-    
-    /* Заголовок календаря */
-    .calendar-container .vp-popup__header {
-      width: 100%;
-      height: 56px;
-      padding: 0;
-      background: transparent;
-      border: 0;
-      box-shadow: none;
-    }
-    
-    .calendar-container .vp-button-group {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      width: 215px;
-      height: 40px;
-      margin: 16px 32px 0;
-      padding: 8px 0;
-    }
-    
-    .calendar-container .vp-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px;
-      color: var(--calendar-text);
-      font: inherit;
-      background: transparent;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    
-    .calendar-container .vp-button:disabled {
-      cursor: not-allowed;
-      opacity: 0.4;
-    }
-    
-    .calendar-container .vp-days {
-      display: grid;
-      grid-template-rows: repeat(6, var(--calendar-day-size));
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      padding: 0 8px;
-      overflow: hidden;
-      place-items: start center;
-    }
-    
-    .calendar-container .vp-weekdays {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 28px;
-    }
-    
-    .calendar-container .vp-day {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      width: var(--calendar-day-size);
-      height: var(--calendar-day-size);
-      color: var(--calendar-text);
-      font-size: 12px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition:
-        background 140ms ease,
-        color 140ms ease;
-    }
-    
-    .calendar-container .vp-day:hover {
-      font-weight: inherit;
-      background: var(--accent-color);
-    }
-    
-    .calendar-container .vp-day:active {
-      font-weight: inherit;
-      background: var(--accent-color);
-    }
-    
-    .calendar-container .vp-day--selected {
-      color: var(--calendar-text);
-      font-weight: inherit;
-      background: var(--button-pressed-color);
-      box-shadow: none;
-    }
-    
-    .calendar-container .vp-day--today {
-      box-shadow: inset 0 0 0 1px rgb(0 0 0 / 30%);
-    }
-    
-    .calendar-container .vp-day--outside {
-      color: var(--calendar-muted);
-      background: transparent;
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    
-    .calendar-container .vp-dialog__actions {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-    }
-    
-    .calendar-container .vp-button--cancel {
-      color: var(--calendar-text);
-      background: transparent;
-      border: 1px solid var(--calendar-accent);
-    }
-    
-    .calendar-container .vp-button--confirm {
-      color: var(--calendar-text);
-      background: transparent;
-      border: 1px solid var(--calendar-accent);
-    }
-    
-    .calendar-container .vp-button--cancel:hover,
-    .calendar-container .vp-button--cancel:active,
-    .calendar-container .vp-button--confirm:hover,
-    .calendar-container .vp-button--confirm:active {
-      width: calc(var(--btn-width) - 10px);
-      color: var(--calendar-text);
-      background: var(--calendar-accent);
-      border-color: var(--calendar-accent);
-    }
-    
-    .calendar-container .vp-popup {
-      z-index: 50;
-    }
-    
-    .calendar-container span[aria-hidden="true"] {
-      text-transform: capitalize;
-    }
-    
-    .calendar-container .vp-days [role="gridcell"]:nth-of-type(n + 43),
-    .calendar-container .vp-day:nth-of-type(n + 43) {
-      display: none;
-    }
-    
-    /* Скрываем лишние элементы от самой библиотеки */
-    .calendar-container .vp-popup__toolbar,
-    .calendar-container .vp-popup__controls,
-    .calendar-container .vp-popup__arrow {
-      display: none !important;
-      visibility: hidden !important;
-    }
+
+<style module scoped>
+.calendar {
+  width: 250px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background: white;
+  font-family: var(--font-family);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-inline: 10px;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 8px;
+  color: #666;
+  font-size: 12px;
+}
+
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.day {
+  text-align: center;
+  padding: 3px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.day:hover {
+  background: #f0f0f0;
+}
+
+.selected {
+  background: #4CAF50;
+  color: white;
+}
+
+.today {
+  border: 1px solid #4CAF50;
+}
+
+.otherMonth {
+  color: #999;
+}
+
+
+.triggerCont {
+  color: var(--accent-color);
+}
+
+.contentList {
+  width: fit-content;
+  max-height: 80px;
+  overflow-y: scroll;
+  position: absolute;
+  z-index: 2;
+  background-color: #fffbfb;
+  border: solid 1px var(--text-color);
+  border-radius: 5px;
+  padding: 3px;
+}
+
+.dpFooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.dpbtn {
+  display: flex;
+  --btn-width: 105px;
+  justify-content: center;
+  align-items: center;
+  width: var(--btn-width);
+  height: 38px;
+  padding: 12px 24px;
+  font-size: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    width 120ms ease;
+  touch-action: manipulation;
+}
+
+.dpbtnCancel {
+  color: var(--calendar-text);
+  background: transparent;
+  border: 1px solid var(--calendar-accent);
+}
+
+.dpbtnApply {
+  color: var(--calendar-text);
+  background: transparent;
+  border: 1px solid var(--calendar-accent);
+}
+
+.dpbtnCancel:hover,
+.dpbtnCancel:active,
+.dpbtnApply:hover,
+.dpbtnApply:active {
+  width: calc(var(--btn-width) - 10px);
+  color: var(--calendar-text);
+  background: var(--calendar-accent);
+  border-color: var(--calendar-accent);
+}
 </style>
+

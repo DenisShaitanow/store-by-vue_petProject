@@ -45,9 +45,9 @@
   "dependencies": {
     "-": "^0.0.1",
     "@vitejs/plugin-vue": "^6.0.3",
+    "@vuepic/vue-datepicker": "^12.1.0",
     "classnames": "^2.5.1",
     "vite-svg-loader": "^5.1.0",
-    "vue-date-picker": "^1.0.2",
     "vue-router": "^4.6.4",
     "vuex": "^4.0.2"
   }

@@ -5,11 +5,9 @@
     <Stepper :current-step="currentStep" :overall-steps="2" />
     
     <PasswordStep
-      v-if="currentStep === 1"
-      :email="email"
-      :password="password"
-      @update:email="handleEmailUpdate"
-      @update:password="handlePasswordUpdate"
+        v-if="currentStep === 1"
+        v-model:email="email"
+        v-model:password="password"
       @click-button="handleNextStep"
     />
     
@@ -72,7 +70,7 @@
     const gender = ref<string>('')
     const location = ref<string>('')
     const birthdayDate = ref<string>('')
-    const currentStep = ref<number>(1)
+    const currentStep = ref<number>(2)
 
     // Данные для регистрации
     const regData = ref<RegistrationData>({
@@ -105,6 +103,7 @@
         birthdayDate: birthdayDate.value
     }
     }, { deep: true })
+
 
     // Проверка возможности регистрации
     const isRegistrationEnabled = computed(() => {

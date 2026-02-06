@@ -29,7 +29,7 @@
         size="42"
       />
       
-      <RevealElementUI
+      <RevealElement
         @click="toggleInputVisibility"
         :visible="showPassword"
       />
@@ -124,7 +124,7 @@
     }
 
     const handleInput = (event) => {
-    emit('update:modelValue', event.target.value)
+      emit('update:modelValue', event.target.value)
     }
 </script>
 

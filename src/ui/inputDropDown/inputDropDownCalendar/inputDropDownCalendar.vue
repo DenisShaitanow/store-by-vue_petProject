@@ -1,7 +1,7 @@
 <template>
-  <div :class="[$style.container, className]">
-    <label :class="$style.label" :for="id">
-      {{ title }}
+  <div :class="[$style.container, props.className]">
+    <label :class="$style.label" :for="props.id">
+      {{ props.title }}
     </label>
 
     <div
@@ -12,8 +12,8 @@
       <input
         ref="inputRef"
         type="text"
-        :id="id"
-        :name="id"
+        :id="props.id"
+        :name="props.id"
         autocomplete="off"
         :class="[$style.input, { [$style.inputError]: !!error }]"
         :placeholder="placeholder"
@@ -37,9 +37,9 @@
           fill="var(--text-color)"
           d="M15.7907 22H8.34884C4.95349 22 3 20.0465 3 16.6512V8.74419c0-3.39535 1.95349-5.34883 5.34884-5.34883h7.44186c3.3953 0 5.3488 1.95348 5.3488 5.34883v7.90701c0 3.3953-1.9535 5.3488-5.3488 5.3488ZM8.34884 4.7907c-2.66047 0-3.95349 1.29303-3.95349 3.95349v7.90701c0 2.6604 1.29302 3.9535 3.95349 3.9535h7.44186c2.6605 0 3.9535-1.2931 3.9535-3.9535V8.74419c0-2.66046-1.293-3.95349-3.9535-3.95349H8.34884Z"
         />
-      </svg>
+      </svg>   
     </div>
-
+    
     <div
       v-if="isOpen"
       ref="calendarRef"
@@ -49,8 +49,8 @@
       ]"
     >
       <SimpleDatePicker 
-        :on-change="handleOnChange" 
-        :selected="value" 
+        :model-value="selectDate"
+        @update:model-value="handleOnChange"
       />
     </div>
     
@@ -61,12 +61,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, defineProps } from 'vue'
-  import SimpleDatePicker from '../../calendar/datepicker/SimpleDatePicker.vue'
+  import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
+  import SimpleDatePicker from '../../calendar/Datapicker.vue'
 
-  // Определяем пропсы
+  // Определяем пропсы  
   interface Props {
-    onChangeDate: (val: Date | null) => void
+    
     className?: string
     id: string
     title: string
@@ -76,6 +76,9 @@
   }
 
   const props = defineProps<Props>()
+
+  console.log(props.title)
+  const emit = defineEmits(['update:modelValue'])
 
   // Рефы
   const containerRef = ref<HTMLDivElement>()
@@ -101,7 +104,7 @@
   const handleOnChange = (date: Date | null) => {
     manualInput.value = ''
     selectDate.value = date
-    props.onChangeDate(date)
+    emit('update:modelValue', date)
     isOpen.value = false
   }
 
@@ -122,7 +125,7 @@
         
         if (!isNaN(parsedDate.getTime())) {
           selectDate.value = parsedDate
-          props.onChangeDate(parsedDate)
+          
         }
       } catch (err) {
         console.error('Ошибка парсинга даты:', err)

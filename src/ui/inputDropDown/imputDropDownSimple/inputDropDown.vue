@@ -1,6 +1,6 @@
 <template>
-  <div ref="containerRef" :class="[$style.container, className]">
-    <label :class="$style.label" :for="id">
+  <div ref="containerRef" :class="[$style.container, props.className]">
+    <label :class="$style.label" :for="props.id">
       {{ title }}
     </label>
     
@@ -16,28 +16,9 @@
         ]"
         @click="toggleDropdown"
       >
-        <template v-if="withInput">
-          <input
-            ref="inputRef"
-            type="text"
-            :id="id"
-            :name="id"
-            autocomplete="off"
-            :class="[
-              $style.input,
-              { [$style.inputError]: !!error }
-            ]"
-            :placeholder="placeholder"
-            :value="inputValue"
-            @input="handleInputChange"
-            @focus="handleInputFocus"
-            @blur="handleInputBlur"
-          />
-        </template>
+       
+        {{ selectedLabel || placeholder }}
         
-        <template v-else>
-          {{ selectedLabel || placeholder }}
-        </template>
         
         <KrestClose
           v-if="isOpen"
@@ -63,7 +44,7 @@
           :key="option.value"
           :data-cy="`genderOption${index}`"
           :class="$style.option"
-          @click="() => handleOptionClick(option.value)"
+          @click="handleOptionClick(option.value)"
           role="menuitem"
           tabindex="0"
         >
@@ -79,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted, defineProps } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
   import AngleOpen from '../../assets/angleOpenInput.svg'
   import KrestClose from '../../assets/krestCloseInput.svg'
 
@@ -87,7 +68,6 @@
   interface Props {
     options: { value: string; label: string }[]
     withInput: boolean
-    onChangeOption: (event: { target: { name: string; value: string } }) => void
     className?: string
     classNameImageOpen?: string
     id: string
@@ -99,6 +79,8 @@
   }
 
   const props = defineProps<Props>()
+
+  const emit = defineEmits<{'update:modelValue' : [value: string]}>()
 
   // Рефы
   const containerRef = ref<HTMLDivElement>()
@@ -130,14 +112,15 @@
   }
 
   const handleOptionClick = (optionValue: string) => {
+
+    
     const fakeEvent = {
       target: {
         name: props.id,
         value: optionValue
       }
     }
-
-    props.onChangeOption(fakeEvent)
+    emit('update:modelValue', optionValue)
     selectedValue.value = optionValue
     selectedLabel.value = findLabelByValue(props.options, optionValue)
     searchTerm.value = ''

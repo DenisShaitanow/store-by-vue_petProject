@@ -12,9 +12,9 @@
       type="text"
       placeholder="Введите ваше имя"
       name="name"
-      :value="nameValue"
+      :model-value="nameValue"
       data-cy="registrationInputName"
-      @update:value="$emit('update:nameValue', $event)"
+      @update:model-value="$emit('update:nameValue', $event)"
     />
     
     <InputUI
@@ -22,19 +22,18 @@
       type="text"
       placeholder="Введите вашу фамилию"
       name="surname"
-      :value="surnameValue"
+      :model-value="surnameValue"
       data-cy="registrationInputSurname"
-      @update:value="$emit('update:surnameValue', $event)"
+      @update:model-value="$emit('update:surnameValue', $event)"
     />
     
     <div :class="$style.twoShortInputs">
       <InputDropDownCalendar
-        :value="birthdayDateValue"
-        title="Дата рождения"
-        id="dateBirthday"
-        placeholder="дд.мм.гггг"
-        :class="$style.calendar"
-        @update:value="handleChangeDate"
+        :model-value="birthdayDateValue"
+        :title="'Дата рождения'"
+        :id="'dateBirthday'"
+        :placeholder="'дд.мм.гггг'"
+        @update:model-value="handleChangeDate"
       />
       
       <InputDropDown
@@ -46,7 +45,7 @@
         :value="genderValue"
         :class-image-open="$style.aroundImage"
         data-cy="registrationInputGender"
-        @update:value="$emit('update:genderValue', $event)"
+        @update:model-value="$emit('update:genderValue', $event)"
       />
     </div>
     
@@ -55,9 +54,9 @@
       type="text"
       placeholder="Введите названия вашего города"
       name="location"
-      :value="locatonValue"
+      :model-value="locatonValue"
       data-cy="registrationInputCity"
-      @update:value="$emit('update:locatonValue', $event)"
+      @update:model-value="$emit('update:locatonValue', $event)"
     />
   </form>
 </template>
@@ -67,7 +66,7 @@
     import AvatarRegistration from '../../../ui/imageUploader/avatarRegistration/AvatarRegistration.vue'
     import InputUI from '../../../ui/input/Input.vue'
     import InputDropDown from '../../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue'
-    import InputDropDownCalendar from '../../../ui/calendar/Datapicker.vue'
+    import InputDropDownCalendar from '../../../ui/inputDropDown/inputDropDownCalendar/inputDropDownCalendar.vue'
 
     interface Option {
     value: string
@@ -75,13 +74,13 @@
     }
 
     interface FormUserInformationStepTwoProps {
-    hiddenAvatarInput?: boolean
-    nameValue: string
-    surnameValue: string
-    birthdayDateValue: string
-    genderValue: string
-    locatonValue: string
-    genderOptions: Option[]
+      hiddenAvatarInput?: boolean
+      nameValue: string
+      surnameValue: string
+      birthdayDateValue: string
+      genderValue: string
+      locatonValue: string
+      genderOptions: Option[]
     }
 
     const props = defineProps<FormUserInformationStepTwoProps>()
@@ -147,7 +146,5 @@
     content: "";
     }
 
-    .calendar {
-    }
-
+ 
 </style>

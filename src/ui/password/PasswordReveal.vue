@@ -7,9 +7,9 @@
         [$style.button_visible]: visible,
         }]"
       type="button"
-      onClick={onClick}
+      @click="emit('click')"
     >
-      {" "}
+      
       
         <svg
             v-if="visible"
@@ -59,12 +59,14 @@
 </template>
 
 <script module setup lang="ts">
-    import { withDefaults, defineProps } from 'vue';
+    import { withDefaults, defineProps, defineEmits } from 'vue';
     
     export type RevealElementUIProps = {
         visible?: boolean;
         onClick: () => void;
     };
+
+    const emit = defineEmits(['click'])
 
     const props = withDefaults(defineProps<RevealElementUIProps>(), {
     className: ''

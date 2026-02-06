@@ -13,18 +13,7 @@
     
 <template>
       <router-view />
-      <!--<div id="app">
-        <!-- Ваш основной контент -->
-        <!--<router-view v-if="useRouter()"></router-view> --> <!-- Если используете роутер -->
-        <!-- Или просто содержимое -->
-        <!--<h1>Добро пожаловать в Vue-проект!</h1>
-        <Logo />
-        <Button label="oooooooooooo"/>
-        <UserDropdown :user="{ nameUser: 'vanya' } "/>
-        <IconButton :type="'notification'"  />
-        <Spinner />
-        <Header />
-      </div> -->
+    
 </template>
     
 <style scoped>

@@ -18,22 +18,22 @@
         </div>
         <span :class="$style.span">или</span>
         <div :class="$style.group">
-          <InputUI
+           <InputUI
             title="Email"
             type="email"
             placeholder="Введите email"
             name="email"
-            :value="email"
+            :model-value="props.email"
             :error="error"
             :error-text="errorText"
             data-cy="registrationInputEmail"
-            @update:value="$emit('update:email', $event)"
+            @update:model-value="$emit('update:email', $event)"
           />
           <PasswordInputUI
             page="register"
-            :value="password"
+            :model-value="props.password"
             data-cy="registrationInputPassword"
-            @update:value="$emit('update:password', $event)"
+            @update:model-value="$emit('update:password', $event)"
           />
         </div>
       </div>
@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-    import { defineProps, defineEmits } from 'vue'
+    import { defineProps, defineEmits, watch } from 'vue'
     import ExternalAuthButton from '../../../ui/externalAuthButton/ExternalAuthButton.vue'
     import InputUI from '../../../ui/input/Input.vue'
     import ButtonUI from '../../../ui/button/Button.vue'
@@ -60,10 +60,10 @@
     import appleIconUrl from '../../../ui/assets/apple-icon.svg?url'
 
     interface PasswordStepProps {
-    email: string
-    password: string
-    error?: boolean
-    errorText?: string
+      email: string
+      password: string
+      error?: boolean
+      errorText?: string
     }
 
     const props = defineProps<PasswordStepProps>()
@@ -75,7 +75,7 @@
     }>()
 
     const handleGoogleAuth = () => {
-    console.log('Авторизация через учетную запись Google')
+    console.log('Авторизация через учетную запись Google', props.email, props.password)
     }
 
     const handleAppleAuth = () => {
