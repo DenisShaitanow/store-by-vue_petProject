@@ -24,11 +24,12 @@
     import { getCookie } from '../../services/cookie'
     import HeaderUI from '../../ui/header/Header.vue'
     import type { RegistrationData } from '../../types/index'
+    import { useTypedStore } from '../../store/index';
 
     // Композиции Vue
     const route = useRoute()
     const router = useRouter()
-    const store = useStore()
+    const store =  useTypedStore()
 
     // Реактивные состояния
     const theme = ref<'light' | 'dark'>('light')
@@ -38,17 +39,17 @@
     return route.path === '/registration' || route.path === '/loginClient'
     })
 
-    /*const isAuth = computed(() => {
-    return store.getters.selectIsAuth || false
+    const isAuth = computed(() => {
+    return store.getters['user/selectIsAuth'] || false
     })
 
     const user = computed<RegistrationData | null>(() => {
-    return store.getters.selectUser || null
-    })*/
+    return store.getters['user/selectUser'] || null
+    })
 
     // Методы
     const handleLogin = () => {
-    router.push('/loginClient')
+        router.push('/loginClient')
     }
 
     const handleRegister = () => {

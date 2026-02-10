@@ -76,14 +76,14 @@
           <button
             type="button"
             :class="[$style.dpbtn, $style.dpbtnCancel]"
-            
+            @click="removeDate"
           >
             Отменить
           </button>
           <button
             type="button"
             :class="[$style.dpbtn, $style.dpbtnApply]"
-            
+            @click="handleSelectDatefotParentComponent"
           >
             Выбрать
           </button>
@@ -209,7 +209,18 @@
     }
     
     selectedDate.value = date
-    emit('update:modelValue', date)
+    
+  }
+
+  const handleSelectDatefotParentComponent = () => {
+    emit('update:modelValue', selectedDate.value)
+  }
+
+  const removeDate = () => {
+    const todayDate = new Date()
+    currentDate.value = todayDate;
+    selectedDate.value = todayDate;
+    emit('update:modelValue', todayDate)
   }
 
   // Проверка, выбрана ли дата

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-    import { withDefaults, defineProps } from 'vue';
+    import { withDefaults, defineProps, computed, defineEmits, watch  } from 'vue';
     import CheckboxUI from './CheckUI.vue';
     
     export interface CheckboxGroupUIProps {
       title?: string;
       fieldNames: string[];
       selectedItems?: string[];
-      onChange: (e: boolean) => void;
       largeHeight?: boolean;
       withInDropdown?: boolean;
     }
@@ -20,8 +19,15 @@
       withInDropdown: false,
       selectedItems: () => []
     })
+    const emit = defineEmits<{'update:checkbox' : [value: {newValue: boolean, label: string}]}>()
+
+    const onChange = (checked: boolean, label: string) => {
+      emit('update:checkbox', {newValue: checked, label: label})
+   }
+
     
     
+     
 </script>
     
 <template>
@@ -37,8 +43,8 @@
             v-for="label in fieldNames"
             :key="label"
             :label="label"
-            :is-checked="selectedItems.includes(label)"
-            @change="onChange"
+            :is-checked="Array.isArray(selectedItems) && selectedItems.includes(label)"
+            :onChange="onChange"
             :large-height="largeHeight || withInDropdown"
           />
         </div>

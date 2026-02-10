@@ -5,16 +5,17 @@
         <div :class="$style.filters">
           <div>
             <CheckboxGroupUI
+                :selected-items="selectedSexData"
               title="Пол"
-              :selected-items="selectedSex"
+              :selected-values="selectedSex"
               :field-names="['Для женщин', 'Для мужчин']"
-              @change="handleSex"
+              @update:checkbox="handleSex"
             />
           </div>
           <div>
             <CheckboxDropdown
-              :selected-values="selectedCategories"
-              @change="handleCategories"
+              :selected-values="selectedCategoriesData"
+              @update:values="handleCategories"
               title="Категория"
               staticMode
               :options="[
@@ -86,16 +87,17 @@
     import type { IProduct } from '../../ui/productCard/ProductCard.vue'
     import { useTypedStore } from '../../store/index';
 
+
     // Константы
-    const categoryMapping: string[] = [
-    't-shirts',
-    'shoes',
-    'jackets',
-    'underwear',
-    'hats',
-    'trousers',
-    'accessories'
-    ]
+    const categoryMapping: Record<string, string> = {
+    'Рубашки': 't-shirts',
+    'Обувь': 'shoes',
+    'Верхняя одежда': 'jackets',
+    'Нижнее белье': 'underwear',
+    'Головные уборы': 'hats',
+    'Брюки': 'trousers',
+    'Аксессуары': 'accessories'
+    }
 
     const sexMapping: Record<string, string> = {
     'Для мужчин': 'man',
@@ -113,7 +115,7 @@
     const selectedSex = ref<string[]>([])
     const selectedSexData = ref<string[]>([])
     const selectedCategories = ref<(string | number)[]>([])
-    const selectedCategoriesData = ref<string[]>([])
+    const selectedCategoriesData = ref<(string | number)[]>([])
 
     // Добавляем таймер для дебаунсинга
     let scrollTimeout: NodeJS.Timeout | null = null
@@ -155,15 +157,15 @@
     return products.value.filter((product) => {
         // Проверяем выбор категории
         if (
-        selectedCategoriesData.value.length > 0 &&
-        !selectedCategoriesData.value.includes(product.category)
+            selectedCategories.value.length > 0 &&
+            !selectedCategories.value.includes(product.category)
         ) {
         return false
         }
         // Проверяем выбор пола
         if (
-        selectedSexData.value.length > 0 &&
-        !selectedSexData.value.includes(product.sex)
+            selectedSex.value.length > 0 &&
+            !selectedSex.value.includes(product.sex)
         ) {
         return false
         }
@@ -255,24 +257,34 @@
             }, 150) // Задержка для дебаунсинга
     }
 
-    const handleSex = (e: { target: { id: string } }) => {
-    const selectedItem: string = e.target.id
-    const selectedItemData: string = sexMapping[selectedItem]
-    
-    if (selectedSex.value.includes(selectedItem)) {
-        selectedSex.value = selectedSex.value.filter((item) => item !== selectedItem)
-        selectedSexData.value = selectedSexData.value.filter((item) => item !== selectedItemData)
-    } else {
-        selectedSex.value = [...selectedSex.value, selectedItem]
-        selectedSexData.value = [...selectedSexData.value, selectedItemData]
-    }
+    const handleSex = (arg: {newValue: boolean, label: string}) => {
+        const {newValue, label} = arg;
+        
+        const selectedItemData: string = sexMapping[label]
+        
+        if (!newValue) {
+            selectedSexData.value = selectedSexData.value.filter((item) => item !== label)
+            selectedSex.value = selectedSex.value.filter((item) => item !== selectedItemData)
+        } else {
+            selectedSex.value = [...selectedSex.value, selectedItemData]
+            selectedSexData.value =[...selectedSexData.value, label]
+        }
     }
 
-    const handleCategories = (selectedValues: (string | number)[]) => {
-    selectedCategories.value = selectedValues
-    selectedCategoriesData.value = selectedValues.map((item) => 
-        categoryMapping[item as number]
-    )
+    const handleCategories = (arg: {newValue: boolean, label: string}) => {
+        const {newValue, label} = arg;
+
+        const selectedItemdata: string = categoryMapping[label];
+
+        if (!newValue) {selectedCategoriesData
+            selectedCategories.value = selectedCategories.value.filter((item) => item !== selectedItemdata)
+             selectedCategoriesData.value = selectedCategoriesData.value.filter((item) => item !== label)
+        } else {
+            selectedCategories.value = [...selectedCategories.value, selectedItemdata]
+            selectedCategoriesData.value = [...selectedCategoriesData.value, label]
+        }
+        
+       
     }
 
     // Хуки жизненного цикла

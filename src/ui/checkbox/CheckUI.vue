@@ -1,26 +1,26 @@
 <script setup lang="ts">
 
-import { withDefaults, defineProps} from 'vue';
-    
-    
-    export interface CheckboxUIProps {
-        label: string;
-        isChecked?: boolean;
-        onChange: (value: boolean) => void;  // Исправленный тип
-        largeHeight?: boolean;
-    }
+  import { withDefaults, defineProps} from 'vue';
+      
+      
+      export interface CheckboxUIProps {
+          label: string;
+          isChecked?: boolean;
+          onChange: (checked: boolean, label: string) => void;  // Исправленный тип
+          largeHeight?: boolean;
+      }
 
-  const props = withDefaults(
-    defineProps<CheckboxUIProps>(),
-    {
-      isChecked: false,
-      largeHeight: false
-    })
-    
-    const handleChange = (e: Event) => {
-        const target = e.target as HTMLInputElement;
-        props.onChange(target.checked); // Передаём boolean
-    };
+    const props = withDefaults(
+      defineProps<CheckboxUIProps>(),
+      {
+        isChecked: false,
+        largeHeight: false
+      })
+      
+      const handleChange = (e: Event) => {
+          const target = e.target as HTMLInputElement;
+          props.onChange(target.checked, target.id); // Передаём boolean
+      };
 
 </script>
     

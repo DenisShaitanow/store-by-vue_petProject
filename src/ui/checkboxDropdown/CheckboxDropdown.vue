@@ -223,7 +223,7 @@
                     ? [option.label]
                     : []
                 "
-                @change="(checked: boolean) => handleCheckboxChange(checked, option.label)"
+                @update:checkbox="handleCheckboxChange"
                 :with-in-dropdown="!staticMode"
               />
             </div>
@@ -489,7 +489,7 @@
                       ? [option.label]
                       : []
                   "
-                  @change="(checked: boolean) => handleCheckboxChange(checked, option.label)"
+                  @update:checkbox="handleCheckboxChange"
                   with-in-dropdown
                 />
               </div>
@@ -519,7 +519,6 @@
       options: CheckboxOption[] | string[];
       selectedValues?: (string | number)[];
       defaultSelectedValues?: (string | number)[];
-      onChange?: (selectedValues: (string | number)[]) => void;
       placeholder?: string;
       title?: string;
       enableSearch?: boolean;
@@ -542,7 +541,8 @@
 
     // Определяем emits ПЕРЕД props
     const emit = defineEmits<{
-      change: [values: (string | number)[]]
+      'change': [values: (string | number)],
+      'update:values': [value: {newValue: boolean, label: string}]
     }>();
 
     // Props with defaults
@@ -685,22 +685,16 @@
       }
       
       // Emit event
+      
       emit('change', newSelected);
     };
 
-    const handleCheckboxChange = (newValue: boolean, label: string) => {
-      const option = filteredOptions.value.find((opt) => opt.label === label);
-      if (!option) return;
-
-      const newSelected = newValue
-        ? [...selectedValuesComputed.value, option.value]
-        : selectedValuesComputed.value.filter((v) => v !== option.value);
-
-      if (selectedValues?.value === undefined) {
-        internalSelectedValues.value = newSelected;
-      }
+    const handleCheckboxChange = (val: {newValue: boolean, label: string}) => {
+      const {newValue, label} = val;
+    
       
-      emit('change', newSelected);
+      emit('update:values', {newValue, label})
+      
     };
 
 </script>

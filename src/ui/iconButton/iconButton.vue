@@ -187,7 +187,7 @@
     }
 
     .button svg {
-  fill: var(--text-color);
+  stroke: var(--text-color);
 }
 
     .button:focus-visible {

@@ -57,9 +57,10 @@
     import ButtonUI from '../../ui/button/Button.vue'
     import PasswordStep from './step1/RegistrationStep1.vue'
     import FormUserInformationStepTwo from './step2/RegistrationStep2.vue'
+     import { useTypedStore } from '../../store/index';
 
     const router = useRouter()
-    const store = useStore()
+    const store = useTypedStore()
 
     // Реактивные состояния
     const email = ref<string>('')
@@ -70,7 +71,7 @@
     const gender = ref<string>('')
     const location = ref<string>('')
     const birthdayDate = ref<string>('')
-    const currentStep = ref<number>(2)
+    const currentStep = ref<number>(1)
 
     // Данные для регистрации
     const regData = ref<RegistrationData>({
@@ -92,29 +93,30 @@
 
     // Следим за изменениями полей и обновляем regData
     watch([email, password, name, surname, gender, location, birthdayDate], () => {
-    regData.value = {
-        email: email.value,
-        password: password.value,
-        name: name.value,
-        surname: surname.value,
-        avatar: avatar.value ? URL.createObjectURL(avatar.value) : '',
-        gender: gender.value,
-        location: location.value,
-        birthdayDate: birthdayDate.value
-    }
+      regData.value = {
+          email: email.value,
+          password: password.value,
+          name: name.value,
+          surname: surname.value,
+          avatar: avatar.value ? URL.createObjectURL(avatar.value) : '',
+          gender: gender.value,
+          location: location.value,
+          birthdayDate: birthdayDate.value
+      }
+      console.log(regData.value)
     }, { deep: true })
 
 
     // Проверка возможности регистрации
     const isRegistrationEnabled = computed(() => {
-    const data = regData.value
-    return !!data.email &&
-        !!data.password &&
-        !!data.birthdayDate &&
-        !!data.gender &&
-        !!data.location &&
-        !!data.name &&
-        !!data.surname
+      const data = regData.value
+      return !!data.email &&
+          !!data.password &&
+          !!data.birthdayDate &&
+          !!data.gender &&
+          !!data.location &&
+          !!data.name &&
+          !!data.surname
     })
 
     // Обработчики событий
