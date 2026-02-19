@@ -37,6 +37,7 @@
     import MoonIcon from '../assets/moon.svg'
     import SunIcon from '../assets/sun.svg'
     import BasketIcon from '../assets/basket_header.svg'
+    import { useTypedStore } from '../../store/index';
 
     export type ThemeMode = 'light' | 'dark'
 
@@ -87,11 +88,13 @@
 
     // Props с проверкой типа в зависимости от переданного type
     const props = defineProps<IconButtonProps>()
+    const store = useTypedStore()
 
-    // Вместо useAppSelector используем props или composable для получения состояния корзины
-    // Предполагаем, что productsInBasket передаются через props или получаются из store
-    const productsInBasket: any[] = [] // Заменить на реальное получение данных из Vuex/Pinia
-    const hasItemsInBasket = computed(() => productsInBasket.length > 0)
+    const productsInBasket = computed(
+        () => store.getters['userData/selectBasket']
+    )
+
+    const hasItemsInBasket = computed(() => {return productsInBasket.value.length > 0})
 
     const computedAriaLabel = computed(() => {
     if (props.ariaLabel) return props.ariaLabel

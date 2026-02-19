@@ -23,6 +23,7 @@
     import { ref, computed, onMounted, defineProps } from 'vue';
     import { useRouter } from 'vue-router';
     import { useStore } from 'vuex';
+    import { useTypedStore } from '../../store/index';
 
     type Category =
         | "t-shirts"
@@ -58,7 +59,7 @@
 
     // Внешние зависимости
     const router = useRouter()
-    const store = useStore()
+    const store = useTypedStore()
 
     // Вычисляемые свойства
     const formattedPrice = computed(() => `${props.price}₽`)
@@ -66,7 +67,7 @@
     // Обработчики событий
     const handleCardClick = (event: MouseEvent) => {
     if (heartlikeRef.value && event.target !== heartlikeRef.value) {
-        router.push(`/${props.id}`)
+        router.push(`/id=${props.id}`)
     }
     }
 

@@ -12,18 +12,25 @@
     <div :class="$style.info">
       <p :class="$style.price">{{ formattedPrice }}</p>
       <p :class="$style.description">{{ card.shortDescription }}</p>
+      
       <DeleteIcon
         :data-cy="'buttonDeleteProductFromBasket'"
         :class="$style.delete"
         @click="handleDelete"
       />
     </div>
+    <div :class="$style.countContainer">
+        <button :class="$style.countChange" @click="handlePlus">+</button>
+        <span :class="$style.count">{{count}}</span>
+        <button :class="$style.countChange" @click="handleMin"><span :class="$style.spanMin">-</span></button>
+      </div>
   </div>
 </template>
 
 <script setup lang="ts">
-    import { computed, defineProps } from 'vue'
-    import { useStore } from 'vuex'
+    import { IProduct } from '@/types/index';
+    import { computed, defineProps, onMounted } from 'vue'
+    import { useTypedStore } from '../../store/index';
     import DeleteIcon from '../assets/delete.svg'
 
     type Category =
@@ -35,40 +42,49 @@
     | "underwear"
     | "accessories";
 
+
+
     // Определяем пропсы
     interface Props {
-    id: string
-    price: number
-    title: string
-    description: string
-    image: string
-    shortDescription: string
-    category: Category
-    sex: "man" | "woman"
-    className?: string
-    isLiked: boolean
+        product: IProduct;
+        count: number
     }
+    
 
     const props = defineProps<Props>()
 
     
-    const card = props;
+    const card = props.product;
 
     // Внешние зависимости
-    const store = useStore()
+    const store =  useTypedStore()
 
     // Вычисляемые свойства
     const formattedPrice = computed(() => `${card.price}₽`)
 
     // Обработчики событий
     const handleDelete = () => {
-    store.dispatch('userUIData/removeFromBusket', card)
+    store.dispatch('userData/removeFromBasket', props.product.id)
     }
+
+    const handlePlus = () => {
+        store.dispatch('userData/addToBasket', card)
+    }
+
+     const handleMin = () => {
+        store.dispatch('userData/removeFromBasket', props.product.id)
+    }
+
+
 
 
 </script>
 
 <style module scoped>
+
+.spanMin {
+   transform: translateY(-2px);
+}
     .container {
     position: relative;
     align-self: center;
@@ -89,7 +105,7 @@
     .info {
     display: flex;
     flex-direction: column;
-    inline-size: 70%;
+    inline-size: 50%;
     }
 
     .image {
@@ -156,6 +172,42 @@
     fill: var(--button-pressed-color);
     }
 
+    .countContainer {
+        display: flex;
+        align-self: center;
+        margin-left: auto;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    .countChange {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 24px;
+        width: 24px;
+        border-radius: 12px;
+        background-color: var(--accent-color);
+        padding-inline: 3px;
+        border: solid 1px var(--caption-color);
+        cursor: pointer;
+        font-weight: 300;
+        font-size: 15px;
+    }
+
+    .countChange:hover {
+        background-color: var(--button-hover-color);
+    }
+
+    .count {
+        display: block;
+        align-self: center;
+        padding-inline: 4px;
+        font-family: var(--font-family);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
     @media (800px <= width <= 1200px) {
     .container {
         block-size: 110px;
@@ -171,27 +223,61 @@
         width: 18px;
         height: 18px;
     }
+
+     .countChange {
+            
+            height: 18px;
+            width: 18px;
+            border-radius: 9px;
+            padding-inline: 3px;
+            font-size: 15px;
+        }
+
+        .count {
+            
+            padding-inline: 3px;
+            
+            font-size: 10px;
+            font-weight: 400;
+        }
     }
 
     @media (600px <= width <= 799px) {
-    .container {
-        block-size: 90px;
-        border-radius: 22px;
-    }
+        .container {
+            block-size: 90px;
+            border-radius: 22px;
+        }
 
-    .price {
-        font-size: var(--font-size-h4);
-        padding-block: 2px;
-    }
+        .price {
+            font-size: var(--font-size-h4);
+            padding-block: 2px;
+        }
 
-    .delete {
-        width: 18px;
-        height: 18px;
-    }
+        .delete {
+            width: 18px;
+            height: 18px;
+        }
 
-    .description {
-        font-size: var(--font-size-h5);
-    }
+        .description {
+            font-size: var(--font-size-h5);
+        }
+
+        .countChange {
+            
+            height: 18px;
+            width: 18px;
+            border-radius: 9px;
+            padding-inline: 3px;
+            font-size: 15px;
+        }
+
+        .count {
+            
+            padding-inline: 3px;
+            
+            font-size: 10px;
+            font-weight: 400;
+        }
     }
 
     @media (450px <= width <= 599px) {
@@ -215,6 +301,23 @@
     .description {
         font-size: 12px;
     }
+
+    .countChange {
+            
+            height: 14px;
+            width: 14px;
+            border-radius: 7px;
+            padding-inline: 2px;
+            font-size: 10px;
+        }
+
+        .count {
+            
+            padding-inline: 3px;
+            
+            font-size: 8px;
+            font-weight: 400;
+        }
     }
 
     @media (width <= 449px) {
@@ -238,5 +341,22 @@
     .description {
         font-size: 11px;
     }
+
+    .countChange {
+            
+            height: 14px;
+            width: 14px;
+            border-radius: 7px;
+            padding-inline: 2px;
+            font-size: 10px;
+        }
+
+        .count {
+            
+            padding-inline: 3px;
+            
+            font-size: 8px;
+            font-weight: 400;
+        }
     }
 </style>

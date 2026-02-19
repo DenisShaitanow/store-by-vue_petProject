@@ -64,7 +64,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
         import { ref, computed, onMounted, watch } from 'vue'
         import { useRoute, useRouter } from 'vue-router'
         import { useStore } from 'vuex'
@@ -75,8 +75,14 @@
         const router = useRouter()
         const store = useTypedStore()
 
-        const idCard = route.params.idCard
+        const idCardR: string = route.params.idCard
+        const idCard = idCardR.slice(3)
         const putToBasketButton = ref(false)
+
+        if (!idCardR.includes('id=')) {
+            console.log('dddd')
+            router.push({ name: '404' })
+        }
 
         // Получаем данные из Vuex
         const products = computed(() => store.getters['userData/selectProducts'])
@@ -95,9 +101,9 @@
         if (!card.value) return
         
         if (putToBasketButton.value) {
-            store.dispatch('removeFromBusket', card.value)
+            store.dispatch('userData/removeFromBasket', card.value)
         } else {
-            store.dispatch('addToBusket', card.value)
+            store.dispatch('userData/addToBasket', card.value)
         }
         
         putToBasketButton.value = !putToBasketButton.value

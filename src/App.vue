@@ -1,5 +1,6 @@
 <script setup>
   import { ref, computed, onMounted, defineEmits, withDefaults, defineProps, onUnmounted, watch, nextTick } from 'vue'
+  import ThemeProvider from './context/ThemeContext.vue';
     import './variables.css';
     /*import Logo from './ui/logo/logo.vue';
     import Button from './ui/button/Button.vue';
@@ -12,7 +13,9 @@
 </script>
     
 <template>
+  <ThemeProvider>
       <router-view />
+  </ThemeProvider>
     
 </template>
     

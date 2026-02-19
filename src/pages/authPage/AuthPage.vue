@@ -60,7 +60,7 @@
         }
         
         if (email.value === regDataObject?.email && password.value === regDataObject?.password) {
-            store.dispatch('loginUser', { email: email.value, password: password.value })
+            store.dispatch('user/loginUser', { email: email.value, password: password.value })
             router.push('/')
         } else {
             authError.value = true

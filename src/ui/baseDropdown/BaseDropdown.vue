@@ -45,10 +45,6 @@ const emit = defineEmits<{
   'update:isOpen': [isOpen: boolean]
 }>();
 
-watch(() => props.isOpen, () => {
-  console.log(props.isOpen)
-})
-
 
 
 // Реактивное состояние
@@ -126,12 +122,12 @@ onUnmounted(() => {
 <template>
   <div 
     ref="containerRef"
-    :class="['base-dropdown-wrapper', className]"
+    :class="[$style.container, className]"
     data-testid="base-dropdown-wrapper"
   >
     <!-- Триггер (slot) -->
     <div
-      :class="['base-dropdown-trigger', {    }]"
+      :class="[$style.trigger]"
       @click="handleTriggerClick"
       @keydown="handleTriggerKeyDown"
       :tabindex="disabled ? -1 : 0"
@@ -153,9 +149,10 @@ onUnmounted(() => {
       v-if="isOpen"
       ref="dropdownRef"
       :class="[
-        'base-dropdown-content',
-        `placement-${placement}`,
-        dropdownClassName
+        $style.dropdown,
+        { [$style.open]: isOpen},
+        $style[`placement-${placement}`],
+        
       ]"
       :style="{ '--offset': `${offset}px` }"
       role="menu"
@@ -170,18 +167,12 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<!--   :class="[{ [$style.likeDone]: isLiked },
+                    $style.like]"-->
     
 <style module scoped lang="css">
-    :root {
-      --dropdown-border: #e5e7eb;
-      --dropdown-shadow:
-        0 10px 15px -3px rgba(0, 0, 0, 0.1),
-        0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      --dropdown-radius: 8px;
-      --dropdown-offset: 4px;
-      --dropdown-z-index: 1000;
-      --dropdown-transition: all 0.2s ease-in-out;
-    }
+    
     
     .container {
       position: relative;
@@ -205,6 +196,15 @@ onUnmounted(() => {
     }
     
     .dropdown {
+
+      --dropdown-border: #e5e7eb;
+      --dropdown-shadow:
+        0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --dropdown-radius: 8px;
+      --dropdown-z-index: 1000;
+      --dropdown-transition: all 0.2s ease-in-out;
+
       position: absolute;
       z-index: var(--dropdown-z-index);
       background: var(--surface-color);
@@ -227,21 +227,28 @@ onUnmounted(() => {
     }
     
     .placement-bottom-left {
+
+       --dropdown-offset: 4px;
+
       top: calc(100% + var(--dropdown-offset));
       left: 0;
     }
     
     .placement-bottom-right {
+
+       --dropdown-offset: 4px;
       top: calc(100% + var(--dropdown-offset));
       right: 0;
     }
     
     .placement-top-left {
+       --dropdown-offset: 4px;
       bottom: calc(100% + var(--dropdown-offset));
       left: 0;
     }
     
     .placement-top-right {
+       --dropdown-offset: 4px;
       right: 0;
       bottom: calc(100% + var(--dropdown-offset));
     }

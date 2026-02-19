@@ -4,27 +4,22 @@
       <Logo />
       
       <nav :class="$style.nav">
-        <div :class="$style.navColumn">
-          <Link to="/about" variant="secondary">
-            О проекте
-          </Link>
-         
-        </div>
+        
         
         <div :class="$style.navColumn">
-          <Link to="/contacts" variant="secondary">
+          <Link to="/contacts" >
             Контакты
           </Link>
-          <Link to="/blog" variant="secondary">
+          <Link to="/blog" >
             Блог
           </Link>
         </div>
         
         <div :class="$style.navColumn">
-          <Link to="/privacy" variant="secondary">
+          <Link to="/privacy">
             Политика конфиденциальности
           </Link>
-          <Link to="/terms" variant="secondary">
+          <Link to="/terms" >
             Пользовательское соглашение
           </Link>
         </div>
@@ -39,14 +34,14 @@
 
 <script setup lang="ts">
     // Импортируем необходимые компоненты
-    import Link from '../link/Link.vue'
+    import Link from '../link/Link.vue';
     import Logo from '../logo/Logo.vue'
 </script>
 
 <style module scoped>
     .footer {
     width: 100%;
-    background: var(--surface-color);
+    background: var(--background-page-color);
     }
 
     .container {
@@ -59,9 +54,9 @@
     }
 
     .nav {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
     }
 
     .navColumn {
@@ -82,7 +77,7 @@
 
     @media (width >= 768px) {
     .nav {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .nav::before {

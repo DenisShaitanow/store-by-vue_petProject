@@ -18,12 +18,12 @@
         :name-value="name"
         :surname-value="surname"
         :gender-value="gender"
-        :locaton-value="location"
+        :location-value="location"
         :birthday-date-value="birthdayDate"
         @update:name-value="handleNameUpdate"
         @update:surname-value="handleSurnameUpdate"
         @update:gender-value="handleGenderUpdate"
-        @update:locaton-value="handleLocationUpdate"
+        @update:location-value="handleLocationUpdate"
         @update:birthday-date-value="handleBirthdayDateUpdate"
         @change-avatar-url="handleAvatarUpdate"
       />
@@ -175,7 +175,6 @@
     try {
         localStorage.setItem('regData', JSON.stringify(regData.value))
         
-        // Предполагаем, что у store есть action registerUser
         await store.dispatch('user/registerUser', regData.value)
         
         router.push('/')

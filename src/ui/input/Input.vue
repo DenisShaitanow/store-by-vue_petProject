@@ -28,11 +28,11 @@
         :name="name"
         :id="`input-${title}`"
         :value="modelValue"
-        :maxlength="50"
         :size="halfSize ? 10 : 42"
         :readonly="withEditButton ? readonlyMode : false"
         @input="handleInput"
         ref="inputRef"
+        :maxlength="maxLength"
       />
       
       <button
@@ -67,6 +67,7 @@ interface Props {
   largeSize?: boolean
   withEditButton?: boolean
   dataCy?: string
+  maxLength?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {

@@ -35,38 +35,61 @@
       <div :class="$style.products" ref="productsContainerRef">
         <SpinnerPulse v-if="isLoading" :class="$style.spinner" />
         <template v-else>
-             <div ref="productCardRef" v-if="productsToShow[0]">
-                <ProductCard
-                    :class="$style.product"
-                    :key="productsToShow[0].id"
-                    :title="productsToShow[0].title"
-                    :description="productsToShow[0].description"
-                    :short-description="productsToShow[0].shortDescription"
-                    :price="productsToShow[0].price"
-                    :id="productsToShow[0].id"
-                    :image="productsToShow[0].image"
-                    :category="productsToShow[0].category"
-                    :sex="productsToShow[0].sex"
-                    :is-liked="productsToShow[0].isLiked"
-                />
-            </div>
-        
+            <template v-if="noProducts === true">
+                <div ref="productCardRef" v-if="productsToShow[0]">
+                    <ProductCard
+                        :class="$style.product"
+                        :key="productsToShow[0].id"
+                        :title="productsToShow[0].title"
+                        :description="productsToShow[0].description"
+                        :short-description="productsToShow[0].shortDescription"
+                        :price="productsToShow[0].price"
+                        :id="productsToShow[0].id"
+                        :image="productsToShow[0].image"
+                        :category="productsToShow[0].category"
+                        :sex="productsToShow[0].sex"
+                        :is-liked="productsToShow[0].isLiked"
+                    />
+                </div>
+            
 
-          <!-- Остальные карточки без рефов -->
-          <ProductCard
-            v-for="product in productsToShow.slice(1)"
-            :key="product.id"
-            :class="$style.product"
-            :title="product.title"
-            :description="product.description"
-            :short-description="product.shortDescription"
-            :price="product.price"
-            :id="product.id"
-            :image="product.image"
-            :category="product.category"
-            :sex="product.sex"
-            :is-liked="product.isLiked"
-          />
+            <!-- Остальные карточки без рефов -->
+            <ProductCard
+                v-for="product in productsToShow.slice(1)"
+                :key="product.id"
+                :class="$style.product"
+                :title="product.title"
+                :description="product.description"
+                :short-description="product.shortDescription"
+                :price="product.price"
+                :id="product.id"
+                :image="product.image"
+                :category="product.category"
+                :sex="product.sex"
+                :is-liked="product.isLiked"
+            />
+          </template>
+          <template v-else>
+            <div :class="$style.noProductsContainer">
+            <span :class="$style.noProducts">
+              Вы пока еще не выбрали понравившиеся товары. Но вы можете сделать
+              это прямо сейчас!
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              :class="$style.noProductsSVG"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M6.09 14.999c-.38934-.88-.59031-1.8317-.59-2.794 0-3.70501 2.91-6.70601 6.5-6.70601s6.5 3.002 6.5 6.70601c.0003.9623-.2007 1.914-.59 2.794M12 1.99899v1M22 11.999h-1m-18 0H2m17.07-7.07101-.707.707m-12.726.001-.707-.707M14.517 19.306c1.01-.327 1.416-1.252 1.53-2.182.034-.278-.195-.509-.475-.509H8.477c-.06838-.0011-.1362.0123-.199.0394-.06279.0271-.11912.0672-.16525.1177-.04613.0505-.08102.1102-.10235.1752-.02134.0649-.02863.1337-.0214.2017.112.928.394 1.606 1.464 2.156m5.064.001-5.064-.001m5.064.001c-.121 1.945-.683 2.715-2.51 2.693-1.954.036-2.404-.917-2.554-2.694"
+              />
+            </svg>
+          </div>
+          </template>
         </template>
       </div>
     </div>
@@ -133,20 +156,28 @@
         },
         { immediate: true }
     );
+
+    const products = computed(() => 
+            store.getters['userData/selectFavoriteProducts'] || []
+    );
  
 
     // Store
     const store = useTypedStore()
 
-    const products = ref<IProduct[]>([]);
+    /*const products = ref<IProduct[]>([]);*/
 
     const selectProducts = computed(() => 
-        store.getters['userData/selectProducts'] || []
+        store.getters['userData/selectFavoriteProducts'] || []
     );
 
       const selectLoadingProducts = computed(() => 
         store.getters['userData/selectLoadingProducts'] || false
     );
+
+    const noProducts = computed(() => {
+        return products.value.length > 0;
+    });
 
     
     watch(selectLoadingProducts, (newValue: boolean) => {
@@ -181,13 +212,6 @@
             (width - 0.1 * width) / (productCardWidth || 160)
         )
         return cardsPerRow * 6
-    }
-
-    const loadProducts = async () => {
-        await store.dispatch('userData/getProducts');
-        
-        // Обновляем локальные данные после загрузки
-        products.value = selectProducts.value;
     }
 
     const updateProductsToShow = () => {
@@ -230,14 +254,14 @@
 
                 
                     isLoadingMore.value = true
-                    
+                    console.log('Loading started...')
 
                     const nextBatchSize = calculateVisibleProductsCount(
                         productsContainerRef.value?.clientWidth || 1200
                     )
                     const startIndex = productsToShow.value.length
                     const endIndex = Math.min(startIndex + nextBatchSize, products.value.length)
-                  
+                    console.log('Loading:', startIndex, 'to', endIndex)
 
                     // Имитация асинхронной загрузки с задержкой
                     setTimeout(() => {
@@ -250,7 +274,7 @@
                         // 4. Ждем отрисовки DOM и скрываем спиннер
                         nextTick()
                         isLoadingMore.value = false
-                     
+                        console.log('Loading complete. Total:', productsToShow.value.length)
                         
                     }, 1000) // Задержка для имитации загрузки
                 }
@@ -289,8 +313,7 @@
 
     // Хуки жизненного цикла
     onMounted(() => {
-        loadProducts()
-        
+
         // Ждем отрисовки DOM для получения правильных размеров
         nextTick(() => {
             handleResize()
@@ -377,100 +400,171 @@
     background-color: var(--toggle-color);
     opacity: 0.6;
     }
+.noProductsContainer {
+  inline-size: 60%;
+  block-size: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-inline: auto;
+  margin-top: 50px;
+  gap: 20px;
+}
 
-    @media (890px <= width <= 1180px) {
-    .rowContainer {
-        gap: 15px;
-    }
+.noProducts {
+  font-size: 22px;
+  color: var(--text-color);
+  text-align: center;
+}
 
-    .containerFixed {
-        width: 145px;
-        padding: 0;
-    }
+.noProductsSVG {
+  width: 60px;
+  height: 60px;
+  stroke: var(--text-color);
+}
 
-    .products {
-        gap: 18px;
-    }
+@media (890px <= width <= 1180px) {
+  .rowContainer {
+    gap: 15px;
+  }
 
-    .filters {
-        gap: 30px;
-    }
-    }
+  .containerFixed {
+    width: 145px;
+    padding: 0;
+  }
 
-    @media (600px <= width <= 889px) {
-    .rowContainer {
-        gap: 15px;
-    }
+  .products {
+    gap: 18px;
+  }
 
-    .containerFixed {
-        width: 130px;
-        padding: 0;
-    }
+  .filters {
+    gap: 30px;
+  }
+}
 
-    .products {
-        gap: 16px;
-    }
+@media (600px <= width <= 889px) {
+  .rowContainer {
+    gap: 15px;
+  }
 
-    .filters {
-        gap: 18px;
-    }
-    }
+  .containerFixed {
+    width: 130px;
+    padding: 0;
+  }
 
-    @media (513px <= width <= 599px) {
-    .rowContainer {
-        gap: 10px;
-    }
+  .products {
+    gap: 16px;
+  }
 
-    .containerFixed {
-        width: 100px;
-        padding: 0;
-    }
+  .filters {
+    gap: 18px;
+  }
 
-    .products {
-        gap: 8px;
-    }
+  .noProducts {
+    font-size: 18px;
+  }
 
-    .filters {
-        gap: 15px;
-    }
-    }
+  .noProductsSVG {
+    width: 40px;
+    height: 40px;
+  }
+}
 
-    @media (385px <= width <= 512px) {
-    .rowContainer {
-        gap: 14px;
-    }
+@media (513px <= width <= 599px) {
+  .rowContainer {
+    gap: 10px;
+  }
 
-    .containerFixed {
-        width: 85px;
-        padding: 0;
-    }
+  .containerFixed {
+    width: 100px;
+    padding: 0;
+  }
 
-    .products {
-        gap: 12px;
-    }
+  .products {
+    gap: 8px;
+  }
 
-    .filters {
-        gap: 12px;
-    }
-    }
+  .filters {
+    gap: 15px;
+  }
 
-    @media (width <= 384px) {
-    .rowContainer {
-        gap: 9px;
-    }
+  .noProductsContainer {
+    margin-top: 30px;
+  }
 
-    .containerFixed {
-        width: 85px;
-        padding: 0;
-    }
+  .noProducts {
+    font-size: 15px;
+  }
 
-    .products {
-        gap: 10px;
-    }
+  .noProductsSVG {
+    width: 28px;
+    height: 28px;
+  }
+}
 
-    .filters {
-        gap: 12px;
-    }
-    }
+@media (385px <= width <= 512px) {
+  .rowContainer {
+    gap: 14px;
+  }
+
+  .containerFixed {
+    width: 85px;
+    padding: 0;
+  }
+
+  .products {
+    gap: 12px;
+  }
+
+  .filters {
+    gap: 12px;
+  }
+
+  .noProductsContainer {
+    margin-top: 35px;
+  }
+
+  .noProducts {
+    font-size: 13px;
+  }
+
+  .noProductsSVG {
+    width: 21px;
+    height: 21px;
+  }
+}
+
+@media (width <= 384px) {
+  .rowContainer {
+    gap: 9px;
+  }
+
+  .containerFixed {
+    width: 85px;
+    padding: 0;
+  }
+
+  .products {
+    gap: 10px;
+  }
+
+  .filters {
+    gap: 12px;
+  }
+
+  .noProductsContainer {
+    margin-top: 20px;
+  }
+
+  .noProducts {
+    font-size: 12px;
+  }
+
+  .noProductsSVG {
+    width: 17px;
+    height: 17px;
+  }
+}
+
 
 </style>

@@ -27,12 +27,14 @@
         :onClick="handleClick"
       />
     </div>
+    <Footer />
 </template>
 
 <script setup lang="ts">
 
     import { useRouter } from 'vue-router';
     import ButtonUI from '../../ui/button/Button.vue';
+    import Footer from '../../ui/footer/Footer.vue';
 
     const router = useRouter()
     

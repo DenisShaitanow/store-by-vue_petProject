@@ -34,7 +34,7 @@
       <IconButton
         type="theme"
         :theme-mode="theme === 'dark' ? 'dark' : 'light'"
-        @click="toggleTheme"
+        @click="toggleThemeClick"
         aria-label="Переключить тему"
         data-cy="sun"
       />
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-    import { ref, computed, onMounted, defineProps, defineEmits } from 'vue'
+    import { inject, ref, computed, onMounted, defineProps, defineEmits } from 'vue'
     import { useRouter } from 'vue-router'
     import CrossSvg from '../assets/cross.svg'
     import ButtonUI from '../button/Button.vue'
@@ -144,6 +144,8 @@
     birthdayDate: '',
     })
 
+    const { toggleTheme } = inject('theme');
+
     // Вычисляемые свойства
     const avatarUrl = computed(() => {
     if (props.user?.avatar) return props.user.avatar
@@ -153,7 +155,7 @@
 
     // Методы
     const handleClickLogo = () => {
-    router.push('/')
+      router.push('/')
     }
 
     const handleFavorits = () => {
@@ -178,8 +180,8 @@
     }
     }
 
-    const toggleTheme = () => {
-    emit('toggleTheme')
+    const toggleThemeClick = () => {
+      toggleTheme()
     }
 
     // Хуки жизненного цикла

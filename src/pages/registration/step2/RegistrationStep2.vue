@@ -29,7 +29,7 @@
     
     <div :class="$style.twoShortInputs">
       <InputDropDownCalendar
-        :model-value="birthdayDateValue"
+        :value="birthdayDateValue"
         :title="'Дата рождения'"
         :id="'dateBirthday'"
         :placeholder="'дд.мм.гггг'"
@@ -54,15 +54,15 @@
       type="text"
       placeholder="Введите названия вашего города"
       name="location"
-      :model-value="locatonValue"
+      :model-value="locationValue"
       data-cy="registrationInputCity"
-      @update:model-value="$emit('update:locatonValue', $event)"
+      @update:model-value="$emit('update:locationValue', $event)"
     />
   </form>
 </template>
 
 <script setup lang="ts">
-    import { defineProps, defineEmits } from 'vue'
+    import { defineProps, defineEmits, onMounted } from 'vue'
     import AvatarRegistration from '../../../ui/imageUploader/avatarRegistration/AvatarRegistration.vue'
     import InputUI from '../../../ui/input/Input.vue'
     import InputDropDown from '../../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue'
@@ -79,7 +79,7 @@
       surnameValue: string
       birthdayDateValue: string
       genderValue: string
-      locatonValue: string
+      locationValue: string
       genderOptions: Option[]
     }
 
@@ -90,7 +90,7 @@
     'update:surnameValue': [value: string]
     'update:birthdayDateValue': [value: string]
     'update:genderValue': [value: string]
-    'update:locatonValue': [value: string]
+    'update:locationValue': [value: string]
     'changeAvatarUrl': [file: File]
     }>()
 

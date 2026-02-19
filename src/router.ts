@@ -5,16 +5,15 @@ import AboutPage from './pages/about_project/AboutPage.vue';
 import CardPage from './pages/cardPage/CardPage.vue';
 import AuthPage from './pages/authPage/AuthPage.vue'
 import RegistrationPage from './pages/registration/registrationPage.vue'
-/*import AboutPage from '../pages/about_project/AboutPage.vue'
-import CardPage from '../pages/cardPage/CardPage.vue'
+import FavoritsPage from './pages/favoritsPage/FavoritsPage.vue'
+import BasketPage from './pages/basket/BasketPage.vue'
+import NotificationsPage from './pages/notifications/NotificationsPage.vue'
+import FormOderPage from './pages/formOrder/FormOrder.vue'
+import OrderComplited from './pages/orderComplited/OrderComplited.vue'
+import PersonalCabinet from './pages/personalCabinet/PersonalCabinet.vue'
+import PageNotFound from './pages/404/PageNotFound.vue';
 
 
-import FavoritsPage from '../pages/favorits/FavoritsPage.vue'
-import BasketPage from '../pages/basket/BasketPage.vue'
-import FormOderPage from '../pages/formOder/FormOrder.vue'
-import OrderComplited from '../pages/orderComplited/OrderComplited.vue'
-import PersonalCabinet from '../pages/personalCabinet/PersonalCabinet.vue'
-import NotificationsPage from '../pages/notifications/NotificationsPage.vue'*/
 
 const routes: RouteRecordRaw[] = [
   {
@@ -31,11 +30,7 @@ const routes: RouteRecordRaw[] = [
         name: 'about',
         component: AboutPage
       },
-      {
-        path: '/:idCard',
-        name: 'card',
-        component: CardPage,
-      },
+      
       {
         path: '/loginClient',
         name: 'login',
@@ -46,8 +41,6 @@ const routes: RouteRecordRaw[] = [
         name: 'registration',
         component: RegistrationPage
       },
-      /*
-      
       {
         path: '/favoritsProducts',
         name: 'favorits',
@@ -59,6 +52,11 @@ const routes: RouteRecordRaw[] = [
         component: BasketPage
       },
       {
+        path: '/notifications',
+        name: 'notifications',
+        component: NotificationsPage
+      },
+      {
         path: '/formOrder',
         name: 'formOrder',
         component: FormOderPage
@@ -68,17 +66,24 @@ const routes: RouteRecordRaw[] = [
         name: 'orderComplited',
         component: OrderComplited
       },
+      
       {
         path: '/personalCabinet',
         name: 'personalCabinet',
         component: PersonalCabinet
       },
       {
-        path: '/notifications',
-        name: 'notifications',
-        component: NotificationsPage
-      }*/
+        path: '/:idCard',
+        name: 'card',
+        component: CardPage,
+      },
+      
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*', // Правильный синтаксис для Vue Router 4
+    name: '404',
+    component: PageNotFound
   }
 ]
 

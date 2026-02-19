@@ -40,7 +40,7 @@
     })
 
     const isAuth = computed(() => {
-    return store.getters['user/selectIsAuth'] || false
+        return store.getters['user/selectIsAuth'] || false
     })
 
     const user = computed<RegistrationData | null>(() => {

@@ -76,8 +76,6 @@
   }
 
   const props = defineProps<Props>()
-
-  console.log(props.title)
   const emit = defineEmits(['update:modelValue'])
 
   // Рефы

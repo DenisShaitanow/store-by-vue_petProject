@@ -12,7 +12,7 @@ export interface IUserState {
   products: IProduct[];
   favoriteItems: string[];
   notifications: { id: string; text: string }[];
-  basket: IProduct[];
+  basket: Array<{ item: IProduct; count: number }>;
   error: string;
   orders: string[];
   errorOrder: string;
@@ -24,7 +24,7 @@ const state: IUserState = {
   products: [],
   favoriteItems: JSON.parse(localStorage.getItem('favoriteItems') || '[]'),
   notifications: [],
-  basket: JSON.parse(localStorage.getItem('basket') || '[]'),
+  basket: /*JSON.parse(localStorage.getItem('basket') || '[]')*/[],
   error: '',
   orders: [],
   errorOrder: '',
@@ -51,7 +51,7 @@ const mutations = {
     state.notifications = notifications;
   },
 
-  SET_BASKET(state: IUserState, basket: IProduct[]) {
+  SET_BASKET(state: IUserState, basket: Array<{ item: IProduct; count: number }>) {
     state.basket = basket;
     localStorage.setItem('basket', JSON.stringify(basket));
   },
@@ -90,20 +90,31 @@ const mutations = {
       // Сохраняем оба массива
       localStorage.setItem('products', JSON.stringify(state.products));
       localStorage.setItem('favoriteItems', JSON.stringify(state.favoriteItems));
-      console.log(JSON.stringify(state.favoriteItems))
     }
   },
 
   // Добавление товара в корзину
   ADD_TO_BASKET(state: IUserState, product: IProduct) {
-    state.basket.push(product);
+    const existingItem = state.basket.find(unit => unit.item.id === product.id);
+  
+    existingItem 
+      ? existingItem.count++ 
+      : state.basket.push({ item: product, count: 1 });
     localStorage.setItem('basket', JSON.stringify(state.basket));
   },
 
   // Удаление товара из корзины
   REMOVE_FROM_BASKET(state: IUserState, productId: string) {
-    state.basket = state.basket.filter(item => item.id !== productId);
-    localStorage.setItem('basket', JSON.stringify(state.basket));
+    console.log(state.basket)
+    const existingItem = state.basket.find(unit => unit.item.id === productId);
+     if (existingItem )  {
+        if ( existingItem.count > 1  ) { existingItem.count-- }
+        else {
+          console.log('aaaa')
+          state.basket = state.basket.filter(item => item.item.id !== productId);
+        }
+        localStorage.setItem('basket', JSON.stringify(state.basket));
+     }
   },
 
   // Сброс избранного

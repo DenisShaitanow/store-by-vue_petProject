@@ -21,11 +21,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed, defineProps, useCssModule } from 'vue'
 import { useRouter } from 'vue-router'
-import type { TProps, TRouterLinkProps, TExternalLinkProps } from './types'
 
-import $style from './Link.module.css'
+
+interface BaseProps {
+  
+  className?: string;
+  disabled?: boolean;
+}
+
+interface InternalLinkProps extends BaseProps {
+  to: string;
+  external?: false;
+}
+
+interface ExternalLinkProps extends BaseProps {
+  href: string;
+  external: true;
+  target?: "_blank" | "_self" | "_parent" | "_top";
+  rel?: string;
+}
+
+type TProps = InternalLinkProps | ExternalLinkProps;
 
 
 const props = defineProps<TProps>()
@@ -54,11 +72,13 @@ const childrenText = computed(() => {
   return ''
 })
 
+const $style = useCssModule()
+
 // Динамические классы через $style (CSS-модули)
 const linkClasses = computed(() => {
   const classes = [
     $style.link,
-    $style.props.variant || 'primary'
+    
   ]
   
   if (props.disabled) {
@@ -81,16 +101,17 @@ const linkClasses = computed(() => {
     line-height: var(--line-height-body);
     cursor: pointer;
     transition: color 0.2s ease;
+    color: var(--text-color);
     }
 
     .link.disabled {
-    color: var(--disabled-text-color);
+    color: var(--text-color);
     cursor: not-allowed;
     pointer-events: none;
     }
 
     .primary {
-    color: var(--button-pressed-color);
+    color: var(--text-color);
     }
 
     .primary:hover {

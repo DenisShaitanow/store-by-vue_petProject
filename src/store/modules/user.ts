@@ -122,7 +122,6 @@ const actions = {
       commit('SET_USER', response.user);
       commit('SET_AUTH', true);
       commit('SET_LOADING', false);
-      
       return { user: response.user };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Ошибка при изменении данных';
@@ -149,7 +148,6 @@ const actions = {
         : response.accessToken;
       
       setCookie('accessToken', accessToken);
-      
       commit('SET_USER', response.user);
       commit('SET_AUTH', true);
       commit('SET_LOADING', false);
