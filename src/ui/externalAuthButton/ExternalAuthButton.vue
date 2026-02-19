@@ -1,38 +1,34 @@
 <template>
-  <button 
-    :type="type" 
-    :class="$style.button" 
-    @click="handleClick"
-  >
+  <button :type="type" :class="$style.button" @click="handleClick">
     <img :src="iconUrl" :alt="label" />
     {{ label }}
   </button>
 </template>
 
 <script setup lang="ts">
-    import { withDefaults, defineProps } from 'vue'
+  import { withDefaults, defineProps } from 'vue';
 
-    interface ExternalAuthButtonProps {
-    label: string
-    iconUrl: string
-    type?: 'button' | 'submit' | 'reset'
-    onClick?: () => void
-    }
+  interface ExternalAuthButtonProps {
+    label: string;
+    iconUrl: string;
+    type?: 'button' | 'submit' | 'reset';
+    onClick?: () => void;
+  }
 
-    const props = withDefaults(defineProps<ExternalAuthButtonProps>(), {
-    type: 'button'
-    })
+  const props = withDefaults(defineProps<ExternalAuthButtonProps>(), {
+    type: 'button',
+  });
 
-    const handleClick = () => {
+  const handleClick = () => {
     if (props.onClick) {
-        props.onClick()
-        console.log(props.iconUrl)
+      props.onClick();
+      console.log(props.iconUrl);
     }
-    }
+  };
 </script>
 
 <style module scoped>
-    .button {
+  .button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,23 +45,22 @@
     border: 1px solid var(--caption-color);
     border-radius: 12px;
     cursor: pointer;
-    }
+  }
 
-    .button img {
+  .button img {
     width: 24px;
     height: 24px;
-    }
+  }
 
-    @media (width <= 500px) {
+  @media (width <= 500px) {
     .button {
-        font-size: 14px;
-        padding: 10px 20px;
+      font-size: 14px;
+      padding: 10px 20px;
     }
 
     .button img {
-        width: 18px;
-        height: 18px;
+      width: 18px;
+      height: 18px;
     }
-    }
-
+  }
 </style>

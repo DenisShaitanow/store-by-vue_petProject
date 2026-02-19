@@ -18,7 +18,7 @@
         </div>
         <span :class="$style.span">или</span>
         <div :class="$style.group">
-           <InputUI
+          <InputUI
             title="Email"
             type="email"
             placeholder="Введите email"
@@ -50,41 +50,41 @@
 </template>
 
 <script setup lang="ts">
-    import { defineProps, defineEmits, watch } from 'vue'
-    import ExternalAuthButton from '../../../ui/externalAuthButton/ExternalAuthButton.vue'
-    import InputUI from '../../../ui/input/Input.vue'
-    import ButtonUI from '../../../ui/button/Button.vue'
-    import PasswordInputUI from '../../../ui/password/PasswordInput.vue'
+  import { defineProps, defineEmits, watch } from 'vue';
+  import ExternalAuthButton from '../../../ui/externalAuthButton/ExternalAuthButton.vue';
+  import InputUI from '../../../ui/input/Input.vue';
+  import ButtonUI from '../../../ui/button/Button.vue';
+  import PasswordInputUI from '../../../ui/password/PasswordInput.vue';
 
-    import googleIconUrl from '../../../ui/assets/google-icon.svg?url'
-    import appleIconUrl from '../../../ui/assets/apple-icon.svg?url'
+  import googleIconUrl from '../../../ui/assets/google-icon.svg?url';
+  import appleIconUrl from '../../../ui/assets/apple-icon.svg?url';
 
-    interface PasswordStepProps {
-      email: string
-      password: string
-      error?: boolean
-      errorText?: string
-    }
+  interface PasswordStepProps {
+    email: string;
+    password: string;
+    error?: boolean;
+    errorText?: string;
+  }
 
-    const props = defineProps<PasswordStepProps>()
+  const props = defineProps<PasswordStepProps>();
 
-    const emit = defineEmits<{
-    'update:email': [value: string]
-    'update:password': [value: string]
-    'click-button': []
-    }>()
+  const emit = defineEmits<{
+    'update:email': [value: string];
+    'update:password': [value: string];
+    'click-button': [];
+  }>();
 
-    const handleGoogleAuth = () => {
-    console.log('Авторизация через учетную запись Google', props.email, props.password)
-    }
+  const handleGoogleAuth = () => {
+    console.log('Авторизация через учетную запись Google', props.email, props.password);
+  };
 
-    const handleAppleAuth = () => {
-    console.log('Авторизация через учетную запись Apple')
-    }
+  const handleAppleAuth = () => {
+    console.log('Авторизация через учетную запись Apple');
+  };
 </script>
 
 <style module scoped>
-    .container {
+  .container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -95,72 +95,72 @@
     border: none;
     border-radius: 12px;
     padding-block: 30px;
-    }
+  }
 
-    .content {
+  .content {
     inline-size: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 32px;
     margin: auto;
-    }
+  }
 
-    .wrapper {
+  .wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     inline-size: 100%;
     gap: 24px;
-    }
+  }
 
-    .group {
+  .group {
     display: flex;
     align-items: center;
     flex-direction: column;
     inline-size: 100%;
     gap: 16px;
     text-align: left;
-    }
+  }
 
-    .span {
+  .span {
     display: block;
     max-width: 436px;
     width: 100%;
     font-weight: var(--font-weight-body, 400);
     font-size: var(--font-size-body, 16px);
-    font-family: var(--font-family, "Roboto", sans-serif);
+    font-family: var(--font-family, 'Roboto', sans-serif);
     line-height: var(--line-height-body, 1.5);
-    }
+  }
 
-    .span::before,
-    .span::after {
-    content: "";
+  .span::before,
+  .span::after {
+    content: '';
     display: inline-flex;
     width: calc((100% - 40px) / 2);
     height: 4px;
     border-top: 1px solid var(--disabled-text-color);
-    }
+  }
 
-    .span::before {
+  .span::before {
     margin-right: 4px;
-    }
+  }
 
-    .span::after {
+  .span::after {
     margin-left: 4px;
-    }
+  }
 
-    .button {
+  .button {
     inline-size: 30%;
-    }
+  }
 
-    @media (width <= 500px) {
+  @media (width <= 500px) {
     .content {
-        gap: 22px;
+      gap: 22px;
     }
 
     .wrapper {
-        gap: 16px;
+      gap: 16px;
     }
-    }
+  }
 </style>

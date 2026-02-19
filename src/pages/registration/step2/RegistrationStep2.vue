@@ -1,12 +1,7 @@
-
-
 <template>
   <form :class="$style.container" data-cy="containerFormStep2">
-    <AvatarRegistration
-      v-if="!hiddenAvatarInput"
-      @image-change="handleFileChange"
-    />
-    
+    <AvatarRegistration v-if="!hiddenAvatarInput" @image-change="handleFileChange" />
+
     <InputUI
       title="Имя"
       type="text"
@@ -16,7 +11,7 @@
       data-cy="registrationInputName"
       @update:model-value="$emit('update:nameValue', $event)"
     />
-    
+
     <InputUI
       title="Фамилия"
       type="text"
@@ -26,7 +21,7 @@
       data-cy="registrationInputSurname"
       @update:model-value="$emit('update:surnameValue', $event)"
     />
-    
+
     <div :class="$style.twoShortInputs">
       <InputDropDownCalendar
         :value="birthdayDateValue"
@@ -35,7 +30,7 @@
         :placeholder="'дд.мм.гггг'"
         @update:model-value="handleChangeDate"
       />
-      
+
       <InputDropDown
         :options="genderOptions"
         :with-input="false"
@@ -48,7 +43,7 @@
         @update:model-value="$emit('update:genderValue', $event)"
       />
     </div>
-    
+
     <InputUI
       title="Город"
       type="text"
@@ -62,56 +57,56 @@
 </template>
 
 <script setup lang="ts">
-    import { defineProps, defineEmits, onMounted } from 'vue'
-    import AvatarRegistration from '../../../ui/imageUploader/avatarRegistration/AvatarRegistration.vue'
-    import InputUI from '../../../ui/input/Input.vue'
-    import InputDropDown from '../../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue'
-    import InputDropDownCalendar from '../../../ui/inputDropDown/inputDropDownCalendar/inputDropDownCalendar.vue'
+  import { defineProps, defineEmits, onMounted } from 'vue';
+  import AvatarRegistration from '../../../ui/imageUploader/avatarRegistration/AvatarRegistration.vue';
+  import InputUI from '../../../ui/input/Input.vue';
+  import InputDropDown from '../../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue';
+  import InputDropDownCalendar from '../../../ui/inputDropDown/inputDropDownCalendar/inputDropDownCalendar.vue';
 
-    interface Option {
-    value: string
-    label: string
-    }
+  interface Option {
+    value: string;
+    label: string;
+  }
 
-    interface FormUserInformationStepTwoProps {
-      hiddenAvatarInput?: boolean
-      nameValue: string
-      surnameValue: string
-      birthdayDateValue: string
-      genderValue: string
-      locationValue: string
-      genderOptions: Option[]
-    }
+  interface FormUserInformationStepTwoProps {
+    hiddenAvatarInput?: boolean;
+    nameValue: string;
+    surnameValue: string;
+    birthdayDateValue: string;
+    genderValue: string;
+    locationValue: string;
+    genderOptions: Option[];
+  }
 
-    const props = defineProps<FormUserInformationStepTwoProps>()
+  const props = defineProps<FormUserInformationStepTwoProps>();
 
-    const emit = defineEmits<{
-    'update:nameValue': [value: string]
-    'update:surnameValue': [value: string]
-    'update:birthdayDateValue': [value: string]
-    'update:genderValue': [value: string]
-    'update:locationValue': [value: string]
-    'changeAvatarUrl': [file: File]
-    }>()
+  const emit = defineEmits<{
+    'update:nameValue': [value: string];
+    'update:surnameValue': [value: string];
+    'update:birthdayDateValue': [value: string];
+    'update:genderValue': [value: string];
+    'update:locationValue': [value: string];
+    changeAvatarUrl: [file: File];
+  }>();
 
-    const handleFileChange = (event: Event) => {
-    const input = event.target as HTMLInputElement
-    const files = input.files
+  const handleFileChange = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
     if (files && files.length > 0) {
-        const selectedFile = files[0]
-        emit('changeAvatarUrl', selectedFile)
-        console.log(URL.createObjectURL(selectedFile))
+      const selectedFile = files[0];
+      emit('changeAvatarUrl', selectedFile);
+      console.log(URL.createObjectURL(selectedFile));
     }
-    }
+  };
 
-    const handleChangeDate = (val: Date | null) => {
-    const dateString = val ? val.toISOString().slice(0, 10) : ""
-    emit('update:birthdayDateValue', dateString)
-    }
+  const handleChangeDate = (val: Date | null) => {
+    const dateString = val ? val.toISOString().slice(0, 10) : '';
+    emit('update:birthdayDateValue', dateString);
+  };
 </script>
 
 <style module scoped>
-    .container {
+  .container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -119,32 +114,30 @@
     width: 100%;
     max-width: 436px;
     height: fit-content;
-    }
+  }
 
-    .twoShortInputs {
+  .twoShortInputs {
     display: flex;
     gap: 20px;
     width: 100%;
     max-width: 436px;
     height: 76px;
-    }
+  }
 
-    .shortInput {
+  .shortInput {
     width: 208px !important;
-    }
+  }
 
-    .aroundImage::after {
+  .aroundImage::after {
     position: absolute;
     top: 50%;
     right: 1rem;
     width: 16px !important;
     height: 8px !important;
-    background-image: url("../assets/around-angle.svg") !important;
+    background-image: url('../assets/around-angle.svg') !important;
     background-repeat: no-repeat;
     background-position: center;
     transform: translateY(-50%);
-    content: "";
-    }
-
- 
+    content: '';
+  }
 </style>

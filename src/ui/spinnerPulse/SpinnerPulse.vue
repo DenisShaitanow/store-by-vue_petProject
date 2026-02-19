@@ -21,59 +21,57 @@
 </template>
 
 <script setup lang="ts">
-    import { withDefaults, defineProps } from 'vue';
-    interface Props {
-    className?: string
-    }
+  import { withDefaults, defineProps } from 'vue';
+  interface Props {
+    className?: string;
+  }
 
-    const props = withDefaults(defineProps<Props>(), {
-    className: ''
-    })
+  const props = withDefaults(defineProps<Props>(), {
+    className: '',
+  });
 </script>
 
 <style module scoped>
-
-    .preloader {
+  .preloader {
     position: fixed;
     left: calc(50% - 20px);
     top: calc(50% - 20px);
     transition: opacity 300ms linear;
-    }
+  }
 
-    .circle {
+  .circle {
     animation: dash 1.4s ease-in-out infinite;
     stroke-dasharray: 80px, 200px;
     stroke-dashoffset: 0px;
-    }
+  }
 
-    .g-container {
+  .g-container {
     transform-box: fill-box;
     transform-origin: center;
     animation: rotate 1.4s linear infinite;
-    }
+  }
 
-    @keyframes dash {
+  @keyframes dash {
     0% {
-        stroke-dasharray: 1px, 200px;
-        stroke-dashoffset: 0px;
+      stroke-dasharray: 1px, 200px;
+      stroke-dashoffset: 0px;
     }
     50% {
-        stroke-dasharray: 100px, 200px;
-        stroke-dashoffset: -15px;
+      stroke-dasharray: 100px, 200px;
+      stroke-dashoffset: -15px;
     }
     100% {
-        stroke-dasharray: 100px, 200px;
-        stroke-dashoffset: -125px;
+      stroke-dasharray: 100px, 200px;
+      stroke-dashoffset: -125px;
     }
-    }
+  }
 
-    @keyframes rotate {
+  @keyframes rotate {
     0% {
-        transform-origin: 50% 50%;
+      transform-origin: 50% 50%;
     }
     100% {
-        transform: rotate(360deg);
+      transform: rotate(360deg);
     }
-    }
-
+  }
 </style>

@@ -1,18 +1,10 @@
 <template>
-  <div
-    :class="$style.container"
-    :id="card.id"
-    :data-cy="`productCard-${card.id}`"
-  >
-    <img 
-      :src="card.image" 
-      :alt="card.title" 
-      :class="$style.image"
-    />
+  <div :class="$style.container" :id="card.id" :data-cy="`productCard-${card.id}`">
+    <img :src="card.image" :alt="card.title" :class="$style.image" />
     <div :class="$style.info">
       <p :class="$style.price">{{ formattedPrice }}</p>
       <p :class="$style.description">{{ card.shortDescription }}</p>
-      
+
       <DeleteIcon
         :data-cy="'buttonDeleteProductFromBasket'"
         :class="$style.delete"
@@ -20,72 +12,65 @@
       />
     </div>
     <div :class="$style.countContainer">
-        <button :class="$style.countChange" @click="handlePlus">+</button>
-        <span :class="$style.count">{{count}}</span>
-        <button :class="$style.countChange" @click="handleMin"><span :class="$style.spanMin">-</span></button>
-      </div>
+      <button :class="$style.countChange" @click="handlePlus">+</button>
+      <span :class="$style.count">{{ count }}</span>
+      <button :class="$style.countChange" @click="handleMin">
+        <span :class="$style.spanMin">-</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-    import { IProduct } from '@/types/index';
-    import { computed, defineProps, onMounted } from 'vue'
-    import { useTypedStore } from '../../store/index';
-    import DeleteIcon from '../assets/delete.svg'
+  import { IProduct } from '@/types/index';
+  import { computed, defineProps, onMounted } from 'vue';
+  import { useTypedStore } from '../../store/index';
+  import DeleteIcon from '../assets/delete.svg';
 
-    type Category =
-    | "t-shirts"
-    | "shoes"
-    | "trousers"
-    | "jackets"
-    | "hats"
-    | "underwear"
-    | "accessories";
+  type Category =
+    | 't-shirts'
+    | 'shoes'
+    | 'trousers'
+    | 'jackets'
+    | 'hats'
+    | 'underwear'
+    | 'accessories';
 
+  // Определяем пропсы
+  interface Props {
+    product: IProduct;
+    count: number;
+  }
 
+  const props = defineProps<Props>();
 
-    // Определяем пропсы
-    interface Props {
-        product: IProduct;
-        count: number
-    }
-    
+  const card = props.product;
 
-    const props = defineProps<Props>()
+  // Внешние зависимости
+  const store = useTypedStore();
 
-    
-    const card = props.product;
+  // Вычисляемые свойства
+  const formattedPrice = computed(() => `${card.price}₽`);
 
-    // Внешние зависимости
-    const store =  useTypedStore()
+  // Обработчики событий
+  const handleDelete = () => {
+    store.dispatch('userData/removeFromBasket', props.product.id);
+  };
 
-    // Вычисляемые свойства
-    const formattedPrice = computed(() => `${card.price}₽`)
+  const handlePlus = () => {
+    store.dispatch('userData/addToBasket', card);
+  };
 
-    // Обработчики событий
-    const handleDelete = () => {
-    store.dispatch('userData/removeFromBasket', props.product.id)
-    }
-
-    const handlePlus = () => {
-        store.dispatch('userData/addToBasket', card)
-    }
-
-     const handleMin = () => {
-        store.dispatch('userData/removeFromBasket', props.product.id)
-    }
-
-
-
-
+  const handleMin = () => {
+    store.dispatch('userData/removeFromBasket', props.product.id);
+  };
 </script>
 
 <style module scoped>
-
-.spanMin {
-   transform: translateY(-2px);
-}
-    .container {
+  .spanMin {
+    transform: translateY(-2px);
+  }
+  .container {
     position: relative;
     align-self: center;
     display: flex;
@@ -100,15 +85,15 @@
     color: var(--text-color);
     background-color: var(--background-page-color);
     padding: 7px;
-    }
+  }
 
-    .info {
+  .info {
     display: flex;
     flex-direction: column;
     inline-size: 50%;
-    }
+  }
 
-    .image {
+  .image {
     display: block;
     inline-size: 25%;
     block-size: 100%;
@@ -116,13 +101,13 @@
     border-radius: inherit;
     transition: 0.4s ease-in-out;
     overflow: hidden;
-    }
+  }
 
-    .image:hover {
+  .image:hover {
     transform: scale(1.05);
-    }
+  }
 
-    .title {
+  .title {
     display: block;
     padding-inline: 10px;
     padding-block: 3px;
@@ -134,9 +119,9 @@
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 2; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .description {
+  .description {
     padding-inline: 9px;
     padding-block: 1px;
     font-size: var(--font-size-h4);
@@ -148,9 +133,9 @@
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 4; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .price {
+  .price {
     padding-inline: 9px;
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-h2);
@@ -158,205 +143,197 @@
     color: brown;
     font-weight: 700;
     padding-block: 5px;
-    }
+  }
 
-    .delete {
+  .delete {
     position: absolute;
     top: 10px;
     right: 15px;
     fill: var(--accent-color);
     cursor: pointer;
-    }
+  }
 
-    .delete :hover {
+  .delete :hover {
     fill: var(--button-pressed-color);
+  }
+
+  .countContainer {
+    display: flex;
+    align-self: center;
+    margin-left: auto;
+    width: fit-content;
+    height: fit-content;
+  }
+
+  .countChange {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 24px;
+    width: 24px;
+    border-radius: 12px;
+    background-color: var(--accent-color);
+    padding-inline: 3px;
+    border: solid 1px var(--caption-color);
+    cursor: pointer;
+    font-weight: 300;
+    font-size: 15px;
+  }
+
+  .countChange:hover {
+    background-color: var(--button-hover-color);
+  }
+
+  .count {
+    display: block;
+    align-self: center;
+    padding-inline: 4px;
+    font-family: var(--font-family);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  @media (800px <= width <= 1200px) {
+    .container {
+      block-size: 110px;
+      border-radius: 28px;
     }
 
-    .countContainer {
-        display: flex;
-        align-self: center;
-        margin-left: auto;
-        width: fit-content;
-        height: fit-content;
+    .price {
+      font-size: var(--font-size-h3);
+      padding-block: 3px;
+    }
+
+    .delete {
+      width: 18px;
+      height: 18px;
     }
 
     .countChange {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 24px;
-        width: 24px;
-        border-radius: 12px;
-        background-color: var(--accent-color);
-        padding-inline: 3px;
-        border: solid 1px var(--caption-color);
-        cursor: pointer;
-        font-weight: 300;
-        font-size: 15px;
-    }
-
-    .countChange:hover {
-        background-color: var(--button-hover-color);
+      height: 18px;
+      width: 18px;
+      border-radius: 9px;
+      padding-inline: 3px;
+      font-size: 15px;
     }
 
     .count {
-        display: block;
-        align-self: center;
-        padding-inline: 4px;
-        font-family: var(--font-family);
-        font-size: 12px;
-        font-weight: 600;
-    }
+      padding-inline: 3px;
 
-    @media (800px <= width <= 1200px) {
+      font-size: 10px;
+      font-weight: 400;
+    }
+  }
+
+  @media (600px <= width <= 799px) {
     .container {
-        block-size: 110px;
-        border-radius: 28px;
+      block-size: 90px;
+      border-radius: 22px;
     }
 
     .price {
-        font-size: var(--font-size-h3);
-        padding-block: 3px;
+      font-size: var(--font-size-h4);
+      padding-block: 2px;
     }
 
     .delete {
-        width: 18px;
-        height: 18px;
-    }
-
-     .countChange {
-            
-            height: 18px;
-            width: 18px;
-            border-radius: 9px;
-            padding-inline: 3px;
-            font-size: 15px;
-        }
-
-        .count {
-            
-            padding-inline: 3px;
-            
-            font-size: 10px;
-            font-weight: 400;
-        }
-    }
-
-    @media (600px <= width <= 799px) {
-        .container {
-            block-size: 90px;
-            border-radius: 22px;
-        }
-
-        .price {
-            font-size: var(--font-size-h4);
-            padding-block: 2px;
-        }
-
-        .delete {
-            width: 18px;
-            height: 18px;
-        }
-
-        .description {
-            font-size: var(--font-size-h5);
-        }
-
-        .countChange {
-            
-            height: 18px;
-            width: 18px;
-            border-radius: 9px;
-            padding-inline: 3px;
-            font-size: 15px;
-        }
-
-        .count {
-            
-            padding-inline: 3px;
-            
-            font-size: 10px;
-            font-weight: 400;
-        }
-    }
-
-    @media (450px <= width <= 599px) {
-    .container {
-        block-size: 80px;
-        border-radius: 18px;
-    }
-
-    .price {
-        font-size: var(--font-size-h5);
-        padding-block: 2px;
-    }
-
-    .delete {
-        top: 9px;
-        right: 11px;
-        width: 18px;
-        height: 18px;
+      width: 18px;
+      height: 18px;
     }
 
     .description {
-        font-size: 12px;
+      font-size: var(--font-size-h5);
     }
 
     .countChange {
-            
-            height: 14px;
-            width: 14px;
-            border-radius: 7px;
-            padding-inline: 2px;
-            font-size: 10px;
-        }
-
-        .count {
-            
-            padding-inline: 3px;
-            
-            font-size: 8px;
-            font-weight: 400;
-        }
+      height: 18px;
+      width: 18px;
+      border-radius: 9px;
+      padding-inline: 3px;
+      font-size: 15px;
     }
 
-    @media (width <= 449px) {
+    .count {
+      padding-inline: 3px;
+
+      font-size: 10px;
+      font-weight: 400;
+    }
+  }
+
+  @media (450px <= width <= 599px) {
     .container {
-        block-size: 80px;
-        border-radius: 18px;
+      block-size: 80px;
+      border-radius: 18px;
     }
 
     .price {
-        font-size: 13px;
-        padding-block: 2px;
+      font-size: var(--font-size-h5);
+      padding-block: 2px;
     }
 
     .delete {
-        top: 8px;
-        right: 12px;
-        width: 16px;
-        height: 16px;
+      top: 9px;
+      right: 11px;
+      width: 18px;
+      height: 18px;
     }
 
     .description {
-        font-size: 11px;
+      font-size: 12px;
     }
 
     .countChange {
-            
-            height: 14px;
-            width: 14px;
-            border-radius: 7px;
-            padding-inline: 2px;
-            font-size: 10px;
-        }
-
-        .count {
-            
-            padding-inline: 3px;
-            
-            font-size: 8px;
-            font-weight: 400;
-        }
+      height: 14px;
+      width: 14px;
+      border-radius: 7px;
+      padding-inline: 2px;
+      font-size: 10px;
     }
+
+    .count {
+      padding-inline: 3px;
+
+      font-size: 8px;
+      font-weight: 400;
+    }
+  }
+
+  @media (width <= 449px) {
+    .container {
+      block-size: 80px;
+      border-radius: 18px;
+    }
+
+    .price {
+      font-size: 13px;
+      padding-block: 2px;
+    }
+
+    .delete {
+      top: 8px;
+      right: 12px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .description {
+      font-size: 11px;
+    }
+
+    .countChange {
+      height: 14px;
+      width: 14px;
+      border-radius: 7px;
+      padding-inline: 2px;
+      font-size: 10px;
+    }
+
+    .count {
+      padding-inline: 3px;
+
+      font-size: 8px;
+      font-weight: 400;
+    }
+  }
 </style>

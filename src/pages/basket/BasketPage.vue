@@ -16,54 +16,48 @@
         @click="handleOrder"
       />
     </template>
-    
+
     <div v-else :class="$style.noProducts">
       <SadSmile />
       <span :class="$style.basketEmpty">Корзина пуста.</span>
-      <ButtonUI
-        label="Вернуться к покупкам"
-        @click="handleBack"
-      />
+      <ButtonUI label="Вернуться к покупкам" @click="handleBack" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useTypedStore } from '../../store/index';
-import ButtonUI from '../../ui/button/Button.vue';
-import ProductCardInBasket from '../../ui/productCardinBasket/ProductCardinBasket.vue';
-import SadSmile from '../../ui/assets/smiley-sad-fill.svg?component'; // Проверьте импорт SVG
+  import { computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useTypedStore } from '../../store/index';
+  import ButtonUI from '../../ui/button/Button.vue';
+  import ProductCardInBasket from '../../ui/productCardinBasket/ProductCardinBasket.vue';
+  import SadSmile from '../../ui/assets/smiley-sad-fill.svg?component'; // Проверьте импорт SVG
 
-// Router
-const router = useRouter();
+  // Router
+  const router = useRouter();
 
-// Store
-const store = useTypedStore()
+  // Store
+  const store = useTypedStore();
 
-// Селектор (геттер) для товаров в корзине
-const productsInBasket = computed(() => 
-  store.getters['userData/selectBasket'] || []
-);
+  // Селектор (геттер) для товаров в корзине
+  const productsInBasket = computed(() => store.getters['userData/selectBasket'] || []);
 
-// Обработчики
-const handleOrder = () => {
-  router.push('/formOrder');
-};
+  // Обработчики
+  const handleOrder = () => {
+    router.push('/formOrder');
+  };
 
-const handleBack = () => {
-  router.push('/');
-};
+  const handleBack = () => {
+    router.push('/');
+  };
 
- onMounted(() => {
-        console.log(productsInBasket.value)  
-    })
+  onMounted(() => {
+    console.log(productsInBasket.value);
+  });
 </script>
 
 <style module scoped lang="css">
-
-    .container {
+  .container {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -75,43 +69,43 @@ const handleBack = () => {
     block-size: fit-content;
     padding: 20px;
     background-color: rgba(
-        var(--accent-color-r),
-        var(--accent-color-g),
-        var(--accent-color-b),
-        0.2
+      var(--accent-color-r),
+      var(--accent-color-g),
+      var(--accent-color-b),
+      0.2
     );
     border-radius: 40px;
     box-shadow: 0 0 3px var(--accent-color);
     gap: 15px;
     font-family: var(--second-family);
     color: var(--text-color);
-    }
+  }
 
-    .cardList {
+  .cardList {
     display: flex;
     align-self: center;
     inline-size: 90%;
     flex-direction: column;
     gap: 15px;
-    }
+  }
 
-    .image {
+  .image {
     display: block;
     inline-size: 100%;
     block-size: 400px;
     object-fit: cover;
     border-radius: 20px;
-    }
+  }
 
-    .information {
+  .information {
     display: flex;
     flex-direction: column;
     gap: 15px;
     inline-size: 60%;
     block-size: 100%;
-    }
+  }
 
-    .title {
+  .title {
     display: block;
     padding-inline: 10px;
     padding-block: 3px;
@@ -124,9 +118,9 @@ const handleBack = () => {
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 2; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .description {
+  .description {
     display: block;
     padding-inline: 10px;
     padding-block: 3px;
@@ -138,9 +132,9 @@ const handleBack = () => {
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 7; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .price {
+  .price {
     display: block;
     padding-inline: 10px;
     padding-block: 3px;
@@ -149,62 +143,61 @@ const handleBack = () => {
     line-height: 120%;
     color: brown;
     margin-bottom: 20px;
-    }
+  }
 
-    .buttonBasket {
+  .buttonBasket {
     inline-size: 40% !important;
     align-self: center;
-    }
+  }
 
-    .noProducts {
+  .noProducts {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 30px;
     min-block-size: 400px;
-    }
+  }
 
-    .basketEmpty {
+  .basketEmpty {
     font-size: 30px;
     font-weight: 650;
     line-height: 120%;
-    }
+  }
 
-    @media (800px <= width <= 1200px) {
+  @media (800px <= width <= 1200px) {
     .container {
-        inline-size: 65%;
-        border-radius: 36px;
+      inline-size: 65%;
+      border-radius: 36px;
     }
-    }
+  }
 
-    @media (600px <= width <= 799px) {
+  @media (600px <= width <= 799px) {
     .container {
-        inline-size: 75%;
-        border-radius: 32px;
+      inline-size: 75%;
+      border-radius: 32px;
     }
-    }
+  }
 
-    @media (400px <= width <= 599px) {
+  @media (400px <= width <= 599px) {
     .container {
-        inline-size: 75%;
-        border-radius: 27px;
+      inline-size: 75%;
+      border-radius: 27px;
     }
 
     .noProducts {
-        min-block-size: 250px;
+      min-block-size: 250px;
     }
-    }
+  }
 
-    @media (width <= 399px) {
+  @media (width <= 399px) {
     .container {
-        inline-size: 85%;
-        border-radius: 27px;
+      inline-size: 85%;
+      border-radius: 27px;
     }
 
     .noProducts {
-        min-block-size: 190px;
+      min-block-size: 190px;
     }
-    }
-
+  }
 </style>

@@ -4,11 +4,7 @@
       {{ props.title }}
     </label>
 
-    <div
-      ref="containerRef"
-      :class="$style.select"
-      @click="toggleCalendar"
-    >
+    <div ref="containerRef" :class="$style.select" @click="toggleCalendar">
       <input
         ref="inputRef"
         type="text"
@@ -37,23 +33,17 @@
           fill="var(--text-color)"
           d="M15.7907 22H8.34884C4.95349 22 3 20.0465 3 16.6512V8.74419c0-3.39535 1.95349-5.34883 5.34884-5.34883h7.44186c3.3953 0 5.3488 1.95348 5.3488 5.34883v7.90701c0 3.3953-1.9535 5.3488-5.3488 5.3488ZM8.34884 4.7907c-2.66047 0-3.95349 1.29303-3.95349 3.95349v7.90701c0 2.6604 1.29302 3.9535 3.95349 3.9535h7.44186c2.6605 0 3.9535-1.2931 3.9535-3.9535V8.74419c0-2.66046-1.293-3.95349-3.9535-3.95349H8.34884Z"
         />
-      </svg>   
+      </svg>
     </div>
-    
+
     <div
       v-if="isOpen"
       ref="calendarRef"
-      :class="[
-        $style.optionsContainer,
-        { [$style.optionsContainerOpen]: isOpen }
-      ]"
+      :class="[$style.optionsContainer, { [$style.optionsContainerOpen]: isOpen }]"
     >
-      <SimpleDatePicker 
-        :model-value="selectDate"
-        @update:model-value="handleOnChange"
-      />
+      <SimpleDatePicker :model-value="selectDate" @update:model-value="handleOnChange" />
     </div>
-    
+
     <span v-if="error" :class="$style.error">
       {{ error }}
     </span>
@@ -61,106 +51,103 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
-  import SimpleDatePicker from '../../calendar/Datapicker.vue'
+  import { ref, onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
+  import SimpleDatePicker from '../../calendar/Datapicker.vue';
 
-  // Определяем пропсы  
+  // Определяем пропсы
   interface Props {
-    
-    className?: string
-    id: string
-    title: string
-    value?: Date
-    placeholder: string
-    error?: string
+    className?: string;
+    id: string;
+    title: string;
+    value?: Date;
+    placeholder: string;
+    error?: string;
   }
 
-  const props = defineProps<Props>()
-  const emit = defineEmits(['update:modelValue'])
+  const props = defineProps<Props>();
+  const emit = defineEmits(['update:modelValue']);
 
   // Рефы
-  const containerRef = ref<HTMLDivElement>()
-  const calendarRef = ref<HTMLDivElement>()
-  const inputRef = ref<HTMLInputElement>()
+  const containerRef = ref<HTMLDivElement>();
+  const calendarRef = ref<HTMLDivElement>();
+  const inputRef = ref<HTMLInputElement>();
 
   // Состояния
-  const isOpen = ref(false)
-  const selectDate = ref<Date | null>(props.value || null)
-  const manualInput = ref('')
+  const isOpen = ref(false);
+  const selectDate = ref<Date | null>(props.value || null);
+  const manualInput = ref('');
 
   // Функция проверки правильности формата даты
   const isValidDateFormat = (dateStr: string) => {
-    const regex = /^\d{1,2}[./-]\d{1,2}[./-]\d{4}$/
-    return regex.test(dateStr)
-  }
+    const regex = /^\d{1,2}[./-]\d{1,2}[./-]\d{4}$/;
+    return regex.test(dateStr);
+  };
 
   // Методы
   const toggleCalendar = () => {
-    isOpen.value = !isOpen.value
-  }
+    isOpen.value = !isOpen.value;
+  };
 
   const handleOnChange = (date: Date | null) => {
-    manualInput.value = ''
-    selectDate.value = date
-    emit('update:modelValue', date)
-    isOpen.value = false
-  }
+    manualInput.value = '';
+    selectDate.value = date;
+    emit('update:modelValue', date);
+    isOpen.value = false;
+  };
 
   const handleManualInputChange = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const inputValue = target.value.trim()
-    
+    const target = event.target as HTMLInputElement;
+    const inputValue = target.value.trim();
+
     if (inputValue === '') {
-      selectDate.value = null
-      props.onChangeDate(null)
-      manualInput.value = ''
-      return
+      selectDate.value = null;
+      props.onChangeDate(null);
+      manualInput.value = '';
+      return;
     }
-    
+
     if (isValidDateFormat(inputValue)) {
       try {
-        const parsedDate = new Date(inputValue.replace(/\./g, ','))
-        
+        const parsedDate = new Date(inputValue.replace(/\./g, ','));
+
         if (!isNaN(parsedDate.getTime())) {
-          selectDate.value = parsedDate
-          
+          selectDate.value = parsedDate;
         }
       } catch (err) {
-        console.error('Ошибка парсинга даты:', err)
+        console.error('Ошибка парсинга даты:', err);
       }
     }
-    
-    manualInput.value = inputValue
-  }
+
+    manualInput.value = inputValue;
+  };
 
   const handleInputFocus = () => {
-    isOpen.value = true
-  }
+    isOpen.value = true;
+  };
 
   const handleClickOutside = (event: MouseEvent) => {
-    const targetNode = event.target as HTMLElement
-    
+    const targetNode = event.target as HTMLElement;
+
     if (
       containerRef.value &&
       !containerRef.value.contains(targetNode) &&
       !(calendarRef.value && calendarRef.value.contains(targetNode))
     ) {
-      isOpen.value = false
+      isOpen.value = false;
     }
-  }
+  };
 
   // Хуки жизненного цикла
   onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
-  })
+    document.addEventListener('click', handleClickOutside);
+  });
 
   onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
-  })
+    document.removeEventListener('click', handleClickOutside);
+  });
 </script>
 
 <style module scoped>
-
   .container {
     position: relative;
     display: flex;
@@ -213,7 +200,7 @@
     background-repeat: no-repeat;
     background-position: center;
     transform: translateY(-50%);
-    content: "";
+    content: '';
   }
 
   /* Styles when there is an error */
@@ -244,11 +231,11 @@
     right: 1rem;
     width: 24px;
     height: 24px;
-    background-image: url("../../assets/krestCloseInput.svg");
+    background-image: url('../../assets/krestCloseInput.svg');
     background-repeat: no-repeat;
     background-position: center;
     transform: translateY(-50%);
-    content: "";
+    content: '';
   }
 
   /* Placeholder selection */
@@ -358,5 +345,4 @@
       padding: 9px 20px;
     }
   }
-
 </style>

@@ -105,243 +105,249 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import type { IFormOrderData } from '../../types/index';
-import InputUI from '../../ui/input/Input.vue';
-import InputDropDown from '../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue';
-import ButtonUI from '../../ui/button/Button.vue';
-import { useTypedStore } from '../../store/index';
+  import { ref, computed, watch, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+  import type { IFormOrderData } from '../../types/index';
+  import InputUI from '../../ui/input/Input.vue';
+  import InputDropDown from '../../ui/inputDropDown/imputDropDownSimple/inputDropDown.vue';
+  import ButtonUI from '../../ui/button/Button.vue';
+  import { useTypedStore } from '../../store/index';
 
-// Типизация для ошибок
-interface Errors {
-  numberCardError: string;
-  personCardError: string;
-  cvvError: string;
-}
-
-
-
-// Router
-const router = useRouter();
-
-// Store
-const store = useTypedStore()
-
-// Селекторы
-const basket = computed(() => store.getters['userData/selectBasket'] || []);
-const basketListId = computed(() => 
-  basket.value.map((product: { id: string | number }) => product.id)
-);
-
-// Константы
-const pickupOptions = [
-  { value: "ул.Мичурина, д.23", label: "ул.Мичурина, д.23" },
-  { value: "пр-т Королева, д.26", label: "пр-т Королева, д.26" },
-  { value: "пл. Ленина, д.17", label: "пл. Ленина, д.17" },
-  { value: "ул. Кирова, д.17", label: "ул. Кирова, д.17" },
-  { value: "ул. Сахарова, д.1", label: "ул. Сахарова, д.1" },
-];
-
-// Вспомогательные функции
-const formatCardNumber = (inputValue: string): string => {
-  const cleanValue = inputValue.replace(/\s/g, "").substring(0, 16);
-  let formattedValue = "";
-  for (let i = 0; i < cleanValue.length; i += 4) {
-    if (i > 0) {
-      formattedValue += " ";
-    }
-    formattedValue += cleanValue.substring(i, Math.min(cleanValue.length, i + 4));
+  // Типизация для ошибок
+  interface Errors {
+    numberCardError: string;
+    personCardError: string;
+    cvvError: string;
   }
-  return formattedValue;
-};
 
-const validateNumberCard = (value: string): boolean =>
-  /^\d+$/.test(value.replace(/\s/g, ""));
-const validatePersonCard = (value: string): boolean => /^[A-Za-z\s]+$/.test(value);
-const validateCVV = (value: string): boolean => /^\d{3}$/.test(value);
+  // Router
+  const router = useRouter();
 
-// Получаем данные из localStorage
-const getInitialFormData = (): IFormOrderData => {
-  const storedFormDataString = localStorage.getItem("orderForm");
-  if (storedFormDataString) {
-    try {
-      return JSON.parse(storedFormDataString);
-    } catch (e) {
-      console.error('Error parsing stored form data', e);
+  // Store
+  const store = useTypedStore();
+
+  // Селекторы
+  const basket = computed(() => store.getters['userData/selectBasket'] || []);
+  const basketListId = computed(() =>
+    basket.value.map((product: { id: string | number }) => product.id)
+  );
+
+  // Константы
+  const pickupOptions = [
+    { value: 'ул.Мичурина, д.23', label: 'ул.Мичурина, д.23' },
+    { value: 'пр-т Королева, д.26', label: 'пр-т Королева, д.26' },
+    { value: 'пл. Ленина, д.17', label: 'пл. Ленина, д.17' },
+    { value: 'ул. Кирова, д.17', label: 'ул. Кирова, д.17' },
+    { value: 'ул. Сахарова, д.1', label: 'ул. Сахарова, д.1' },
+  ];
+
+  // Вспомогательные функции
+  const formatCardNumber = (inputValue: string): string => {
+    const cleanValue = inputValue.replace(/\s/g, '').substring(0, 16);
+    let formattedValue = '';
+    for (let i = 0; i < cleanValue.length; i += 4) {
+      if (i > 0) {
+        formattedValue += ' ';
+      }
+      formattedValue += cleanValue.substring(i, Math.min(cleanValue.length, i + 4));
     }
-  }
-  
-  return {
-    selectСourier: true,
-    adress: "",
-    adressPoint: "",
-    formPaySelf: true,
-    numberCard: "",
-    PersonCard: "",
-    CVV: "",
-    productList: [],
+    return formattedValue;
   };
-};
 
-// Состояния
-const formData = ref<IFormOrderData>(getInitialFormData());
+  const validateNumberCard = (value: string): boolean => /^\d+$/.test(value.replace(/\s/g, ''));
+  const validatePersonCard = (value: string): boolean => /^[A-Za-z\s]+$/.test(value);
+  const validateCVV = (value: string): boolean => /^\d{3}$/.test(value);
 
-const errors = ref<Errors>({
-  numberCardError: "",
-  personCardError: "",
-  cvvError: "",
-});
-const buttonBuyDisabled = ref<boolean>(true);
+  // Получаем данные из localStorage
+  const getInitialFormData = (): IFormOrderData => {
+    const storedFormDataString = localStorage.getItem('orderForm');
+    if (storedFormDataString) {
+      try {
+        return JSON.parse(storedFormDataString);
+      } catch (e) {
+        console.error('Error parsing stored form data', e);
+      }
+    }
 
-// Обработчики
-const handleChangeNumberCard = (value: string) => {
-  const cleanedAndFormattedValue = formatCardNumber(value);
-  const valid = validateNumberCard(cleanedAndFormattedValue);
-  
-  errors.value = {
-    ...errors.value,
-    numberCardError: valid ? "" : "Некорректный номер карты",
+    return {
+      selectСourier: true,
+      adress: '',
+      adressPoint: '',
+      formPaySelf: true,
+      numberCard: '',
+      PersonCard: '',
+      CVV: '',
+      productList: [],
+    };
   };
-  
-  formData.value = { ...formData.value, numberCard: cleanedAndFormattedValue };
-};
 
-const handleChangePersonCard = (value: string) => {
-  const valid = validatePersonCard(value);
-  
-  errors.value = {
-    ...errors.value,
-    personCardError: valid ? "" : "Имя владельца должно содержать только латиницу",
+  // Состояния
+  const formData = ref<IFormOrderData>(getInitialFormData());
+
+  const errors = ref<Errors>({
+    numberCardError: '',
+    personCardError: '',
+    cvvError: '',
+  });
+  const buttonBuyDisabled = ref<boolean>(true);
+
+  // Обработчики
+  const handleChangeNumberCard = (value: string) => {
+    const cleanedAndFormattedValue = formatCardNumber(value);
+    const valid = validateNumberCard(cleanedAndFormattedValue);
+
+    errors.value = {
+      ...errors.value,
+      numberCardError: valid ? '' : 'Некорректный номер карты',
+    };
+
+    formData.value = { ...formData.value, numberCard: cleanedAndFormattedValue };
   };
-  
-  formData.value = { ...formData.value, PersonCard: value };
-};
 
-const handleChangeCVV = (value: string) => {
-  const cvvChecked = value.substring(0, 3);
-  const valid = validateCVV(cvvChecked);
-  
-  
-  errors.value = {
-    ...errors.value,
-    cvvError: valid ? "" : "Код CVV должен содержать три цифры",
+  const handleChangePersonCard = (value: string) => {
+    const valid = validatePersonCard(value);
+
+    errors.value = {
+      ...errors.value,
+      personCardError: valid ? '' : 'Имя владельца должно содержать только латиницу',
+    };
+
+    formData.value = { ...formData.value, PersonCard: value };
   };
-  
-  
-  formData.value = { ...formData.value, CVV: cvvChecked };
-  console.log(formData.value.CVV)
-};
 
-const handleChangeAdress = (value: string) => {
-  formData.value = { ...formData.value, adress: value };
-};
+  const handleChangeCVV = (value: string) => {
+    const cvvChecked = value.substring(0, 3);
+    const valid = validateCVV(cvvChecked);
 
-const handleChangePoint = (value: string) => {
-  formData.value = { ...formData.value, adressPoint: value };
-};
+    errors.value = {
+      ...errors.value,
+      cvvError: valid ? '' : 'Код CVV должен содержать три цифры',
+    };
 
-const handleBuy = () => {
-  store.dispatch('userData/doOrder', formData.value);
-  router.push("/orderComplited");
-};
-
-const handleSelectNoCourier = () => {
-    formData.value = {...formData.value, selectСourier: false}
-}
-
-const handleSelectCourier = () => {
-  formData.value = {...formData.value, selectСourier: true}
-}
-
-const handleSelectformPaySelf = () => {
-  formData.value = {...formData.value, formPaySelf: true}
-}
-
-const handleSelectformPayOnline = () => {
-  formData.value = {...formData.value, formPaySelf: false}
-}
-
-
-// Watchers
-watch(basketListId, (newList) => {
-  formData.value = { ...formData.value, productList: newList };
-}, { immediate: true });
-
-watch(formData, (newData) => {
-  localStorage.setItem("orderForm", JSON.stringify(newData));
-}, { deep: true });
-
-// Проверка валидности формы
-watch([formData, errors], () => {
-  const isValidAddressSelection =
-    (formData.value.selectСourier && formData.value.adress.trim()) ||
-    (!formData.value.selectСourier &&
-      formData.value.adressPoint.trim() &&
-      formData.value.productList.length > 0);
-
-  const isPaymentDataComplete =
-    formData.value.formPaySelf ||
-    (!formData.value.formPaySelf &&
-      formData.value.numberCard.trim() !== "" &&
-      formData.value.PersonCard.trim() !== "" &&
-      formData.value.CVV.trim() !== "" &&
-      !errors.value.cvvError &&
-      !errors.value.numberCardError &&
-      !errors.value.personCardError);
-
-  buttonBuyDisabled.value = !(isValidAddressSelection && isPaymentDataComplete);
-}, { deep: true, immediate: true });
-
-// Инициализация
-onMounted(() => {
-  // Проверяем все значения при монтировании
-  const numberCardValid = validateNumberCard(formData.value.numberCard);
-  const personCardValid = validatePersonCard(formData.value.PersonCard);
-  const cvvValid = validateCVV(formData.value.CVV);
-
-  errors.value = {
-    numberCardError: numberCardValid ? "" : "Некорректный номер карты",
-    personCardError: personCardValid ? "" : "Имя владельца должно содержать только латиницу",
-    cvvError: cvvValid ? "" : "Код CVV должен содержать три цифры",
+    formData.value = { ...formData.value, CVV: cvvChecked };
+    console.log(formData.value.CVV);
   };
-});
+
+  const handleChangeAdress = (value: string) => {
+    formData.value = { ...formData.value, adress: value };
+  };
+
+  const handleChangePoint = (value: string) => {
+    formData.value = { ...formData.value, adressPoint: value };
+  };
+
+  const handleBuy = () => {
+    store.dispatch('userData/doOrder', formData.value);
+    router.push('/orderComplited');
+  };
+
+  const handleSelectNoCourier = () => {
+    formData.value = { ...formData.value, selectСourier: false };
+  };
+
+  const handleSelectCourier = () => {
+    formData.value = { ...formData.value, selectСourier: true };
+  };
+
+  const handleSelectformPaySelf = () => {
+    formData.value = { ...formData.value, formPaySelf: true };
+  };
+
+  const handleSelectformPayOnline = () => {
+    formData.value = { ...formData.value, formPaySelf: false };
+  };
+
+  // Watchers
+  watch(
+    basketListId,
+    (newList) => {
+      formData.value = { ...formData.value, productList: newList };
+    },
+    { immediate: true }
+  );
+
+  watch(
+    formData,
+    (newData) => {
+      localStorage.setItem('orderForm', JSON.stringify(newData));
+    },
+    { deep: true }
+  );
+
+  // Проверка валидности формы
+  watch(
+    [formData, errors],
+    () => {
+      const isValidAddressSelection =
+        (formData.value.selectСourier && formData.value.adress.trim()) ||
+        (!formData.value.selectСourier &&
+          formData.value.adressPoint.trim() &&
+          formData.value.productList.length > 0);
+
+      const isPaymentDataComplete =
+        formData.value.formPaySelf ||
+        (!formData.value.formPaySelf &&
+          formData.value.numberCard.trim() !== '' &&
+          formData.value.PersonCard.trim() !== '' &&
+          formData.value.CVV.trim() !== '' &&
+          !errors.value.cvvError &&
+          !errors.value.numberCardError &&
+          !errors.value.personCardError);
+
+      buttonBuyDisabled.value = !(isValidAddressSelection && isPaymentDataComplete);
+    },
+    { deep: true, immediate: true }
+  );
+
+  // Инициализация
+  onMounted(() => {
+    // Проверяем все значения при монтировании
+    const numberCardValid = validateNumberCard(formData.value.numberCard);
+    const personCardValid = validatePersonCard(formData.value.PersonCard);
+    const cvvValid = validateCVV(formData.value.CVV);
+
+    errors.value = {
+      numberCardError: numberCardValid ? '' : 'Некорректный номер карты',
+      personCardError: personCardValid ? '' : 'Имя владельца должно содержать только латиницу',
+      cvvError: cvvValid ? '' : 'Код CVV должен содержать три цифры',
+    };
+  });
 </script>
 
 <style module scoped>
-    .container {
+  .container {
     display: flex;
     flex-direction: column;
     max-inline-size: 660px;
     min-block-size: 400px;
     margin-inline: auto;
     background-color: rgba(
-        var(--accent-color-r),
-        var(--accent-color-g),
-        var(--accent-color-b),
-        0.2
+      var(--accent-color-r),
+      var(--accent-color-g),
+      var(--accent-color-b),
+      0.2
     );
     padding: 30px;
     gap: 16px;
     border-radius: 10px;
     border: solid 1px var(--accent-color);
-    }
+  }
 
-    .selectPay {
+  .selectPay {
     display: block;
     max-inline-size: 630px;
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-h2);
     line-height: var(--line-height-h2);
     color: var(--text-color);
-    }
+  }
 
-    .twoButtons {
+  .twoButtons {
     display: flex;
     gap: 6px;
-    }
+  }
 
-    .selectPayButton {
+  .selectPayButton {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -356,64 +362,63 @@ onMounted(() => {
     font-size: var(--font-size-h4);
     font-weight: var(--font-weight-h4);
     line-height: var(--line-height-h4);
-    }
+  }
 
-    .select {
+  .select {
     border: solid 1px red;
-    }
+  }
 
-    .infoCard {
+  .infoCard {
     display: block;
     font-size: var(--font-size-h3);
     font-weight: var(--font-weight-h3);
     line-height: var(--line-height-h3);
     color: var(--text-color);
-    }
+  }
 
-    .cardInputs {
+  .cardInputs {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     column-gap: 25px;
     row-gap: 10px;
-    }
+  }
 
-    .buttonBuy {
+  .buttonBuy {
     width: 60%;
     align-self: center;
     margin-top: 15px;
-    }
+  }
 
-    @media (626px <= width <= 1200px) {
+  @media (626px <= width <= 1200px) {
     .buttonBuy {
-        height: 36px;
-        font-size: 18px;
+      height: 36px;
+      font-size: 18px;
     }
-    }
+  }
 
-    @media (width <= 625px) {
+  @media (width <= 625px) {
     .buttonBuy {
-        height: 36px;
-        font-size: 16px;
+      height: 36px;
+      font-size: 16px;
     }
-    }
+  }
 
-    @media (width <= 500px) {
+  @media (width <= 500px) {
     .selectPay {
-        font-size: var(--font-size-h3);
+      font-size: var(--font-size-h3);
     }
 
     .selectPayButton {
-        font-size: var(--font-size-h5);
-        font-weight: var(--font-weight-h5);
-        line-height: var(--line-height-h5);
-        block-size: fit-content;
+      font-size: var(--font-size-h5);
+      font-weight: var(--font-weight-h5);
+      line-height: var(--line-height-h5);
+      block-size: fit-content;
     }
 
     .buttonBuy {
-        height: 33px;
-        font-size: 15px;
+      height: 33px;
+      font-size: 15px;
     }
-    }
-
+  }
 </style>

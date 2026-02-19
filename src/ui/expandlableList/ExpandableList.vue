@@ -29,11 +29,7 @@
       </div>
 
       <!-- Кнопка показать все/свернуть -->
-      <button
-        type="button"
-        :class="buttonClassName || $style.toggleButton"
-        @click="handleToggle"
-      >
+      <button type="button" :class="buttonClassName || $style.toggleButton" @click="handleToggle">
         <span :class="buttonClassName ? undefined : $style.toggleText">
           {{ isExpanded ? collapseText : showAllText }}
         </span>
@@ -64,107 +60,110 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useSlots, defineEmits, defineProps, withDefaults, useCssModule, onMounted, VNode } from 'vue'
+  import {
+    computed,
+    ref,
+    useSlots,
+    defineEmits,
+    defineProps,
+    withDefaults,
+    useCssModule,
+    onMounted,
+    VNode,
+  } from 'vue';
 
-export interface ExpandableListProps {
-  /* Максимальное количество видимых элементов */
-  maxVisibleItems?: number
-  /* Текст для кнопки "Показать все" */
-  showAllText?: string
-  /* Текст для кнопки "Свернуть" */
-  collapseText?: string
-  /* CSS класс для контейнера */
-  className?: string
-  /* CSS класс для дополнительных элементов */
-  additionalItemsClassName?: string
-  /* CSS класс для дополнительных элементов в expanded состоянии */
-  additionalItemsExpandedClassName?: string
-  /* CSS класс для кнопки */
-  buttonClassName?: string
-  /* Отключить анимации */
-  disableAnimation?: boolean
-  /* Колбэк при изменении состояния (развернуто/свернуто) */
-  onToggle?: (isExpanded: boolean) => void
-}
-
-const props = withDefaults(defineProps<ExpandableListProps>(), {
-  maxVisibleItems: 3,
-  showAllText: 'Показать все',
-  collapseText: 'Свернуть',
-  disableAnimation: false,
-})
-
-const emit = defineEmits<{
-  toggle: [isExpanded: boolean]
-}>()
-
-const style = useCssModule()
-const slots = useSlots()
-const isExpanded = ref(false)
-
-const children = computed<VNode[]>(() => {
-  if (!slots.default) return []
-  
-  const slotContent = slots.default()
-  
-  // Если slotContent - это Fragment с детьми
-  if (slotContent && 
-      slotContent.type && 
-      slotContent.children && 
-      Array.isArray(slotContent.children)) {
-    return slotContent.children
+  export interface ExpandableListProps {
+    /* Максимальное количество видимых элементов */
+    maxVisibleItems?: number;
+    /* Текст для кнопки "Показать все" */
+    showAllText?: string;
+    /* Текст для кнопки "Свернуть" */
+    collapseText?: string;
+    /* CSS класс для контейнера */
+    className?: string;
+    /* CSS класс для дополнительных элементов */
+    additionalItemsClassName?: string;
+    /* CSS класс для дополнительных элементов в expanded состоянии */
+    additionalItemsExpandedClassName?: string;
+    /* CSS класс для кнопки */
+    buttonClassName?: string;
+    /* Отключить анимации */
+    disableAnimation?: boolean;
+    /* Колбэк при изменении состояния (развернуто/свернуто) */
+    onToggle?: (isExpanded: boolean) => void;
   }
-  
-  // Если slotContent - массив (может содержать несколько узлов или Fragment'ов)
-  if (Array.isArray(slotContent)) {
-    // Если в массиве один элемент и это Fragment
-    if (slotContent.length === 1 && 
-        slotContent[0] && 
-        slotContent[0].children) {
-      return slotContent[0].children
+
+  const props = withDefaults(defineProps<ExpandableListProps>(), {
+    maxVisibleItems: 3,
+    showAllText: 'Показать все',
+    collapseText: 'Свернуть',
+    disableAnimation: false,
+  });
+
+  const emit = defineEmits<{
+    toggle: [isExpanded: boolean];
+  }>();
+
+  const style = useCssModule();
+  const slots = useSlots();
+  const isExpanded = ref(false);
+
+  const children = computed<VNode[]>(() => {
+    if (!slots.default) return [];
+
+    const slotContent = slots.default();
+
+    // Если slotContent - это Fragment с детьми
+    if (
+      slotContent &&
+      slotContent.type &&
+      slotContent.children &&
+      Array.isArray(slotContent.children)
+    ) {
+      return slotContent.children;
     }
-    return slotContent
-  }
-  
-  return [slotContent]
-})
 
-// Видимые элементы
-const visibleItems = computed(() => 
-  children.value.slice(0, props.maxVisibleItems)
-)
+    // Если slotContent - массив (может содержать несколько узлов или Fragment'ов)
+    if (Array.isArray(slotContent)) {
+      // Если в массиве один элемент и это Fragment
+      if (slotContent.length === 1 && slotContent[0] && slotContent[0].children) {
+        return slotContent[0].children;
+      }
+      return slotContent;
+    }
 
-// Скрытые элементы
-const hiddenItems = computed(() => 
-  children.value.slice(props.maxVisibleItems)
-)
+    return [slotContent];
+  });
 
-// Классы для контейнера
-const containerClasses = computed(() => ({
-  [props.className || '']: !!props.className,
-  [style.container]: !props.className
-}))
+  // Видимые элементы
+  const visibleItems = computed(() => children.value.slice(0, props.maxVisibleItems));
 
-// Обработчик переключения
-const handleToggle = () => {
-  const newState = !isExpanded.value
-  isExpanded.value = newState
-  
-  // Вызываем колбэк если передан
-  if (props.onToggle) {
-    props.onToggle(newState)
-  }
-  
-  // Эмитим событие
-  emit('toggle', newState)
-}
+  // Скрытые элементы
+  const hiddenItems = computed(() => children.value.slice(props.maxVisibleItems));
 
+  // Классы для контейнера
+  const containerClasses = computed(() => ({
+    [props.className || '']: !!props.className,
+    [style.container]: !props.className,
+  }));
+
+  // Обработчик переключения
+  const handleToggle = () => {
+    const newState = !isExpanded.value;
+    isExpanded.value = newState;
+
+    // Вызываем колбэк если передан
+    if (props.onToggle) {
+      props.onToggle(newState);
+    }
+
+    // Эмитим событие
+    emit('toggle', newState);
+  };
 </script>
 
-
-
 <style module scoped>
-    .container {
+  .container {
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -212,7 +211,7 @@ const handleToggle = () => {
     color: var(--accent-color, #007bff);
     font-weight: 400;
     font-size: 16px;
-    font-family: "Roboto", var(--font-family, sans-serif);
+    font-family: 'Roboto', var(--font-family, sans-serif);
     line-height: 1.5;
     letter-spacing: 0.02em;
     text-align: left;

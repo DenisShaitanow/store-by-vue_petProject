@@ -12,76 +12,73 @@
     <p :class="[$style.description]">{{ props.shortDescription }}</p>
     <span
       ref="heartlikeRef"
-      :class="[{ [$style.likeDone]: isLiked },
-                    $style.like]"
+      :class="[{ [$style.likeDone]: isLiked }, $style.like]"
       @click.stop="handleLike"
     ></span>
   </div>
 </template>
 
 <script setup lang="ts">
-    import { ref, computed, onMounted, defineProps } from 'vue';
-    import { useRouter } from 'vue-router';
-    import { useStore } from 'vuex';
-    import { useTypedStore } from '../../store/index';
+  import { ref, computed, onMounted, defineProps } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useStore } from 'vuex';
+  import { useTypedStore } from '../../store/index';
 
-    type Category =
-        | "t-shirts"
-        | "shoes"
-        | "trousers"
-        | "jackets"
-        | "hats"
-        | "underwear"
-        | "accessories";
+  type Category =
+    | 't-shirts'
+    | 'shoes'
+    | 'trousers'
+    | 'jackets'
+    | 'hats'
+    | 'underwear'
+    | 'accessories';
 
-    // Определяем пропсы
-    interface Props {
-    id: string
-    price: number
-    title: string
-    description: string
-    image: string
-    shortDescription: string
-    category: Category
-    sex: 'man' | 'woman'
-    className?: string
-    isLiked: boolean
-    }
+  // Определяем пропсы
+  interface Props {
+    id: string;
+    price: number;
+    title: string;
+    description: string;
+    image: string;
+    shortDescription: string;
+    category: Category;
+    sex: 'man' | 'woman';
+    className?: string;
+    isLiked: boolean;
+  }
 
-    const props = defineProps<Props>()
+  const props = defineProps<Props>();
 
-    // Рефы
-    const containerRef = ref<HTMLDivElement>()
-    const heartlikeRef = ref<HTMLSpanElement>()
+  // Рефы
+  const containerRef = ref<HTMLDivElement>();
+  const heartlikeRef = ref<HTMLSpanElement>();
 
-    // Состояния
-    const isLiked = ref(props.isLiked)
+  // Состояния
+  const isLiked = ref(props.isLiked);
 
-    // Внешние зависимости
-    const router = useRouter()
-    const store = useTypedStore()
+  // Внешние зависимости
+  const router = useRouter();
+  const store = useTypedStore();
 
-    // Вычисляемые свойства
-    const formattedPrice = computed(() => `${props.price}₽`)
+  // Вычисляемые свойства
+  const formattedPrice = computed(() => `${props.price}₽`);
 
-    // Обработчики событий
-    const handleCardClick = (event: MouseEvent) => {
+  // Обработчики событий
+  const handleCardClick = (event: MouseEvent) => {
     if (heartlikeRef.value && event.target !== heartlikeRef.value) {
-        router.push(`/id=${props.id}`)
+      router.push(`/id=${props.id}`);
     }
-    }
+  };
 
-    const handleLike = () => {
+  const handleLike = () => {
     // Диспатч экшена для добавления/удаления из избранного
-    store.dispatch('userData/toggleFavorite', props.id)
-    isLiked.value = !isLiked.value
-    }
-
-
+    store.dispatch('userData/toggleFavorite', props.id);
+    isLiked.value = !isLiked.value;
+  };
 </script>
 
 <style module scoped>
-    .container {
+  .container {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -94,21 +91,21 @@
     border-color: var(--accent-color);
     font-family: var(--second-family);
     color: var(--text-color);
-    }
+  }
 
-    .container:hover {
+  .container:hover {
     cursor: pointer;
-    }
+  }
 
-    .image {
+  .image {
     display: block;
     inline-size: 100%;
     block-size: 63%;
     object-fit: cover;
     border-radius: inherit;
-    }
+  }
 
-    .title {
+  .title {
     display: block;
     padding-inline: 9px;
     font-size: 18px;
@@ -119,9 +116,9 @@
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 2; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .description {
+  .description {
     padding-inline: 9px;
     padding-block: 1px;
     margin-top: 2px;
@@ -134,9 +131,9 @@
     display: -webkit-box !important; /* Важно установить именно webkit-box */
     -webkit-line-clamp: 2; /* Обязательно с дефисом и префиксом */
     -webkit-box-orient: vertical; /* Ориентация вертикальной коробки */
-    }
+  }
 
-    .category {
+  .category {
     position: absolute;
     top: 97px;
     right: 7px;
@@ -148,9 +145,9 @@
     color: brown;
     padding: 3px;
     font-size: 10px;
-    }
+  }
 
-    .price {
+  .price {
     padding-inline: 9px;
     font-size: var(--font-size-h3);
     font-weight: var(--font-weight-h3);
@@ -159,242 +156,241 @@
     font-weight: 700;
     padding-block: 5px;
     margin-top: 2px;
-    }
+  }
 
-    .like {
+  .like {
     position: absolute;
     top: 15px;
     right: 15px;
     width: 24px;
     height: 24px;
-    background-image: url("../assets/like.svg");
-    }
+    background-image: url('../assets/like.svg');
+  }
 
-    .likeDone {
-    background-image: url("../assets/like-red.svg");
-    }
+  .likeDone {
+    background-image: url('../assets/like-red.svg');
+  }
 
-    @media (1180px <= width <= 1440px) {
+  @media (1180px <= width <= 1440px) {
     .container {
-        inline-size: 180px;
-        block-size: 270px;
-        border-radius: 20px;
+      inline-size: 180px;
+      block-size: 270px;
+      border-radius: 20px;
     }
 
     .title {
-        font-size: 14px;
-        font-weight: 500;
-        line-height: 120%;
-        padding-block: 1px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 120%;
+      padding-block: 1px;
     }
 
     .description {
-        font-size: 12px;
-        font-weight: 300;
-        line-height: 100%;
+      font-size: 12px;
+      font-weight: 300;
+      line-height: 100%;
     }
 
     .price {
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 3px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 3px;
     }
-    }
+  }
 
-    @media (890px <= width <= 1179px) {
+  @media (890px <= width <= 1179px) {
     .container {
-        inline-size: 150px;
-        block-size: 225px;
-        border-radius: 15px;
+      inline-size: 150px;
+      block-size: 225px;
+      border-radius: 15px;
     }
 
     .title {
-        font-size: 12px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
     .description {
-        font-size: 10px;
-        font-weight: 300;
-        line-height: 100%;
+      font-size: 10px;
+      font-weight: 300;
+      line-height: 100%;
     }
 
     .price {
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 3px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 3px;
     }
 
     .like {
-        top: 10px;
-        right: 10px;
-        width: 18px;
-        height: 18px;
+      top: 10px;
+      right: 10px;
+      width: 18px;
+      height: 18px;
     }
-    }
+  }
 
-    @media (600px <= width <= 889px) {
+  @media (600px <= width <= 889px) {
     .container {
-        inline-size: 120px;
-        block-size: 180px;
-        border-radius: 10px;
+      inline-size: 120px;
+      block-size: 180px;
+      border-radius: 10px;
     }
 
     .title {
-        font-size: 10px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
     .description {
-        font-size: 9px;
-        font-weight: 300;
-        line-height: 100%;
-        margin-top: 1px;
+      font-size: 9px;
+      font-weight: 300;
+      line-height: 100%;
+      margin-top: 1px;
     }
 
     .price {
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 3px;
     }
 
     .like {
-        top: 7px;
-        right: 7px;
-        width: 15px;
-        height: 15px;
+      top: 7px;
+      right: 7px;
+      width: 15px;
+      height: 15px;
     }
 
     .image {
-        block-size: 59%;
+      block-size: 59%;
     }
-    }
+  }
 
-    @media (513px <= width <= 599px) {
+  @media (513px <= width <= 599px) {
     .container {
-        inline-size: 100px;
-        block-size: 140px;
-        border-radius: 7px;
+      inline-size: 100px;
+      block-size: 140px;
+      border-radius: 7px;
     }
 
     .title {
-        font-size: 9px;
-        font-weight: 500;
-        line-height: 110%;
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 110%;
     }
 
     .description {
-        font-size: 7px;
-        font-weight: 300;
-        line-height: 100%;
-        margin-top: 1px;
+      font-size: 7px;
+      font-weight: 300;
+      line-height: 100%;
+      margin-top: 1px;
     }
 
     .price {
-        font-size: 10px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
     .like {
-        top: 5px;
-        right: 5px;
-        width: 12px;
-        height: 12px;
+      top: 5px;
+      right: 5px;
+      width: 12px;
+      height: 12px;
     }
 
     .image {
-        block-size: 55%;
+      block-size: 55%;
     }
-    }
+  }
 
-    @media (430px <= width <= 512px) {
+  @media (430px <= width <= 512px) {
     .container {
-        inline-size: 120px;
-        block-size: 160px;
-        border-radius: 10px;
+      inline-size: 120px;
+      block-size: 160px;
+      border-radius: 10px;
     }
 
     .title {
-        font-size: 10px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
     .description {
-        font-size: 9px;
-        font-weight: 300;
-        line-height: 100%;
-        margin-top: 1px;
+      font-size: 9px;
+      font-weight: 300;
+      line-height: 100%;
+      margin-top: 1px;
     }
 
     .price {
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 3px;
     }
 
     .like {
-        top: 7px;
-        right: 7px;
-        width: 15px;
-        height: 15px;
+      top: 7px;
+      right: 7px;
+      width: 15px;
+      height: 15px;
     }
 
     .image {
-        block-size: 59%;
+      block-size: 59%;
     }
-    }
+  }
 
-    @media (width <= 429px) {
+  @media (width <= 429px) {
     .container {
-        inline-size: 100px;
-        block-size: 140px;
-        border-radius: 10px;
+      inline-size: 100px;
+      block-size: 140px;
+      border-radius: 10px;
     }
 
     .title {
-        font-size: 9px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
     .description {
-        font-size: 7px;
-        font-weight: 300;
-        line-height: 100%;
-        margin-top: 0;
+      font-size: 7px;
+      font-weight: 300;
+      line-height: 100%;
+      margin-top: 0;
     }
 
     .like {
-        top: 7px;
-        right: 7px;
-        width: 15px;
-        height: 15px;
+      top: 7px;
+      right: 7px;
+      width: 15px;
+      height: 15px;
     }
 
     .price {
-        margin-top: 2px;
-        font-size: 11px;
-        font-weight: 500;
-        line-height: 110%;
-        padding-block: 1px;
+      margin-top: 2px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 110%;
+      padding-block: 1px;
     }
 
-        .image {
-            block-size: 55%;
-        }
+    .image {
+      block-size: 55%;
     }
-
+  }
 </style>

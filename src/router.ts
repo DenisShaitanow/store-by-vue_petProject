@@ -1,19 +1,17 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import Layout from './pages/layout/Layout.vue'
-import HomePage from './pages/home/HomePage.vue'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import Layout from './pages/layout/Layout.vue';
+import HomePage from './pages/home/HomePage.vue';
 import AboutPage from './pages/about_project/AboutPage.vue';
 import CardPage from './pages/cardPage/CardPage.vue';
-import AuthPage from './pages/authPage/AuthPage.vue'
-import RegistrationPage from './pages/registration/registrationPage.vue'
-import FavoritsPage from './pages/favoritsPage/FavoritsPage.vue'
-import BasketPage from './pages/basket/BasketPage.vue'
-import NotificationsPage from './pages/notifications/NotificationsPage.vue'
-import FormOderPage from './pages/formOrder/FormOrder.vue'
-import OrderComplited from './pages/orderComplited/OrderComplited.vue'
-import PersonalCabinet from './pages/personalCabinet/PersonalCabinet.vue'
+import AuthPage from './pages/authPage/AuthPage.vue';
+import RegistrationPage from './pages/registration/registrationPage.vue';
+import FavoritsPage from './pages/favoritsPage/FavoritsPage.vue';
+import BasketPage from './pages/basket/BasketPage.vue';
+import NotificationsPage from './pages/notifications/NotificationsPage.vue';
+import FormOderPage from './pages/formOrder/FormOrder.vue';
+import OrderComplited from './pages/orderComplited/OrderComplited.vue';
+import PersonalCabinet from './pages/personalCabinet/PersonalCabinet.vue';
 import PageNotFound from './pages/404/PageNotFound.vue';
-
-
 
 const routes: RouteRecordRaw[] = [
   {
@@ -23,73 +21,72 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'home',
-        component: HomePage
+        component: HomePage,
       },
       {
         path: '/about',
         name: 'about',
-        component: AboutPage
+        component: AboutPage,
       },
-      
+
       {
         path: '/loginClient',
         name: 'login',
-        component: AuthPage
+        component: AuthPage,
       },
       {
         path: '/registration',
         name: 'registration',
-        component: RegistrationPage
+        component: RegistrationPage,
       },
       {
         path: '/favoritsProducts',
         name: 'favorits',
-        component: FavoritsPage
+        component: FavoritsPage,
       },
       {
         path: '/basket',
         name: 'basket',
-        component: BasketPage
+        component: BasketPage,
       },
       {
         path: '/notifications',
         name: 'notifications',
-        component: NotificationsPage
+        component: NotificationsPage,
       },
       {
         path: '/formOrder',
         name: 'formOrder',
-        component: FormOderPage
+        component: FormOderPage,
       },
       {
         path: '/orderComplited',
         name: 'orderComplited',
-        component: OrderComplited
+        component: OrderComplited,
       },
-      
+
       {
         path: '/personalCabinet',
         name: 'personalCabinet',
-        component: PersonalCabinet
+        component: PersonalCabinet,
       },
       {
         path: '/:idCard',
         name: 'card',
         component: CardPage,
       },
-      
-    ]
+    ],
   },
   {
     path: '/:pathMatch(.*)*', // Правильный синтаксис для Vue Router 4
     name: '404',
-    component: PageNotFound
-  }
-]
+    component: PageNotFound,
+  },
+];
 
 const router = createRouter({
   history: createWebHistory('/store-by-react'), // Базовый путь
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

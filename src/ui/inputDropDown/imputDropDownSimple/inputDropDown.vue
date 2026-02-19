@@ -3,41 +3,28 @@
     <label :class="$style.label" :for="props.id">
       {{ title }}
     </label>
-    
+
     <div :class="{ [$style.borderDone]: isOpen }">
       <div
         data-cy="inputDroppdownSelect"
         :class="[
           $style.select,
-          { 
+          {
             [$style.selectOpen]: isOpen,
-            [classNameImageOpen]: isOpen && classNameImageOpen
-          }
+            [classNameImageOpen]: isOpen && classNameImageOpen,
+          },
         ]"
         @click="toggleDropdown"
       >
-       
         {{ selectedLabel || placeholder }}
-        
-        
-        <KrestClose
-          v-if="isOpen"
-          :class="$style.svg"
-          @click.stop="handleCloseClick"
-        />
-        <AngleOpen
-          v-else
-          :class="$style.svg"
-          @click.stop="handleOpenClick"
-        />
+
+        <KrestClose v-if="isOpen" :class="$style.svg" @click.stop="handleCloseClick" />
+        <AngleOpen v-else :class="$style.svg" @click.stop="handleOpenClick" />
       </div>
 
       <div
         v-if="isOpen"
-        :class="[
-          $style.optionsContainer,
-          { [$style.optionsContainerOpen]: isOpen }
-        ]"
+        :class="[$style.optionsContainer, { [$style.optionsContainerOpen]: isOpen }]"
       >
         <div
           v-for="(option, index) in filteredOptions"
@@ -52,7 +39,7 @@
         </div>
       </div>
     </div>
-    
+
     <span v-if="error" :class="$style.error">
       {{ error }}
     </span>
@@ -60,136 +47,133 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted, defineProps, defineEmits } from 'vue'
-  import AngleOpen from '../../assets/angleOpenInput.svg'
-  import KrestClose from '../../assets/krestCloseInput.svg'
+  import { ref, computed, onMounted, onUnmounted, defineProps, defineEmits } from 'vue';
+  import AngleOpen from '../../assets/angleOpenInput.svg';
+  import KrestClose from '../../assets/krestCloseInput.svg';
 
   // Определяем пропсы
   interface Props {
-    options: { value: string; label: string }[]
-    withInput: boolean
-    className?: string
-    classNameImageOpen?: string
-    id: string
-    title: string
-    value?: string
-    placeholder: string
-    error?: string
-    dataCy?: string
+    options: { value: string; label: string }[];
+    withInput: boolean;
+    className?: string;
+    classNameImageOpen?: string;
+    id: string;
+    title: string;
+    value?: string;
+    placeholder: string;
+    error?: string;
+    dataCy?: string;
   }
 
-  const props = defineProps<Props>()
+  const props = defineProps<Props>();
 
-  const emit = defineEmits<{'update:modelValue' : [value: string]}>()
+  const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
   // Рефы
-  const containerRef = ref<HTMLDivElement>()
-  const inputRef = ref<HTMLInputElement>()
+  const containerRef = ref<HTMLDivElement>();
+  const inputRef = ref<HTMLInputElement>();
 
   // Состояния
-  const isOpen = ref(false)
-  const searchTerm = ref('')
-  const selectedValue = ref(props.value || '')
-  const selectedLabel = ref('')
-  const filteredOptions = ref(props.options)
+  const isOpen = ref(false);
+  const searchTerm = ref('');
+  const selectedValue = ref(props.value || '');
+  const selectedLabel = ref('');
+  const filteredOptions = ref(props.options);
 
   // Вычисляемые свойства
   const inputValue = computed(() => {
-    return searchTerm.value || selectedLabel.value
-  })
+    return searchTerm.value || selectedLabel.value;
+  });
 
   // Методы
   const findLabelByValue = (options: { value: string; label: string }[], value: string) => {
-    const foundOption = options.find((opt) => opt.value === value)
-    return foundOption?.label || ''
-  }
+    const foundOption = options.find((opt) => opt.value === value);
+    return foundOption?.label || '';
+  };
 
   const toggleDropdown = () => {
-    isOpen.value = !isOpen.value
+    isOpen.value = !isOpen.value;
     if (isOpen.value && props.withInput && inputRef.value) {
-      inputRef.value.focus()
+      inputRef.value.focus();
     }
-  }
+  };
 
   const handleOptionClick = (optionValue: string) => {
-
-    
     const fakeEvent = {
       target: {
         name: props.id,
-        value: optionValue
-      }
-    }
-    emit('update:modelValue', optionValue)
-    selectedValue.value = optionValue
-    selectedLabel.value = findLabelByValue(props.options, optionValue)
-    searchTerm.value = ''
-    isOpen.value = false
-  }
+        value: optionValue,
+      },
+    };
+    emit('update:modelValue', optionValue);
+    selectedValue.value = optionValue;
+    selectedLabel.value = findLabelByValue(props.options, optionValue);
+    searchTerm.value = '';
+    isOpen.value = false;
+  };
 
   const handleInputChange = (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const newSearchTerm = target.value.trim().toLowerCase()
-    searchTerm.value = newSearchTerm
+    const target = event.target as HTMLInputElement;
+    const newSearchTerm = target.value.trim().toLowerCase();
+    searchTerm.value = newSearchTerm;
 
     // Фильтруем варианты по введённой строке
     filteredOptions.value = props.options.filter((opt) =>
       opt.label.toLowerCase().startsWith(newSearchTerm)
-    )
+    );
 
     if (newSearchTerm === '') {
-      isOpen.value = false
+      isOpen.value = false;
     } else {
-      isOpen.value = true
+      isOpen.value = true;
     }
-  }
+  };
 
   const handleInputFocus = () => {
-    isOpen.value = true
-  }
+    isOpen.value = true;
+  };
 
   const handleInputBlur = () => {
     setTimeout(() => {
-      isOpen.value = false
-    }, 100)
-  }
+      isOpen.value = false;
+    }, 100);
+  };
 
   const handleCloseClick = () => {
-    isOpen.value = false
-  }
+    isOpen.value = false;
+  };
 
   const handleOpenClick = () => {
-    isOpen.value = true
+    isOpen.value = true;
     if (props.withInput && inputRef.value) {
-      inputRef.value.focus()
+      inputRef.value.focus();
     }
-  }
+  };
 
   const handleClickOutside = (event: MouseEvent) => {
     if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
-      isOpen.value = false
+      isOpen.value = false;
     }
-  }
+  };
 
   // Хуки жизненного цикла
   onMounted(() => {
     // Устанавливаем начальное значение
     if (props.value) {
-      selectedLabel.value = findLabelByValue(props.options, props.value)
+      selectedLabel.value = findLabelByValue(props.options, props.value);
     }
-    
+
     // Добавляем обработчик клика вне компонента
-    document.addEventListener('click', handleClickOutside)
-  })
+    document.addEventListener('click', handleClickOutside);
+  });
 
   onUnmounted(() => {
     // Убираем обработчик клика вне компонента
-    document.removeEventListener('click', handleClickOutside)
-  })
+    document.removeEventListener('click', handleClickOutside);
+  });
 </script>
 
 <style module scoped>
-
   .container {
     position: relative;
     display: flex;
@@ -221,8 +205,6 @@
     transition: border-color 0.2s ease;
   }
 
-
-
   /* Styles when there is an error */
 
   .selectError {
@@ -231,7 +213,6 @@
   }
 
   /* Open state */
-
 
   .borderDone {
     top: 28px;
@@ -355,7 +336,6 @@
     width: 100%;
   }
 
-
   @media (400px <= width <= 500px) {
     .container {
       font-size: 12px;
@@ -366,8 +346,6 @@
       height: 14px;
     }
   }
-
-
 
   @media (width <= 399px) {
     .container {
@@ -382,7 +360,5 @@
       width: 13px;
       height: 13px;
     }
-
-  }       
-
+  }
 </style>

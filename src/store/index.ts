@@ -7,9 +7,9 @@ const storeOptions: StoreOptions<RootState> = {
   state: {} as RootState,
   modules: {
     user,
-    userData
+    userData,
   },
-  strict: process.env.NODE_ENV !== 'production'
+  strict: process.env.NODE_ENV !== 'production',
 };
 
 // Создаем store

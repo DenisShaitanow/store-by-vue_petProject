@@ -17,88 +17,85 @@
   </div>
 </template>
 
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 
 <style module scoped>
+  .noProductsContainer {
+    inline-size: 60%;
+    block-size: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-inline: auto;
+    margin-top: 50px;
+    gap: 20px;
+  }
+
+  .noProducts {
+    font-size: 22px;
+    color: var(--text-color);
+    text-align: center;
+  }
+
+  .noProductsSVG {
+    width: 60px;
+    height: 60px;
+    stroke: var(--text-color);
+  }
+
+  @media (600px <= width <= 889px) {
+    .noProducts {
+      font-size: 18px;
+    }
+
+    .noProductsSVG {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  @media (513px <= width <= 599px) {
     .noProductsContainer {
-  inline-size: 60%;
-  block-size: 30%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-inline: auto;
-  margin-top: 50px;
-  gap: 20px;
-}
+      margin-top: 30px;
+    }
 
-.noProducts {
-  font-size: 22px;
-  color: var(--text-color);
-  text-align: center;
-}
+    .noProducts {
+      font-size: 15px;
+    }
 
-.noProductsSVG {
-  width: 60px;
-  height: 60px;
-  stroke: var(--text-color);
-}
-
-@media (600px <= width <= 889px) {
-  .noProducts {
-    font-size: 18px;
+    .noProductsSVG {
+      width: 28px;
+      height: 28px;
+    }
   }
 
-  .noProductsSVG {
-    width: 40px;
-    height: 40px;
-  }
-}
+  @media (385px <= width <= 512px) {
+    .noProductsContainer {
+      margin-top: 35px;
+    }
 
-@media (513px <= width <= 599px) {
-  .noProductsContainer {
-    margin-top: 30px;
-  }
+    .noProducts {
+      font-size: 13px;
+    }
 
-  .noProducts {
-    font-size: 15px;
-  }
-
-  .noProductsSVG {
-    width: 28px;
-    height: 28px;
-  }
-}
-
-@media (385px <= width <= 512px) {
-  .noProductsContainer {
-    margin-top: 35px;
+    .noProductsSVG {
+      width: 21px;
+      height: 21px;
+    }
   }
 
-  .noProducts {
-    font-size: 13px;
-  }
+  @media (width <= 384px) {
+    .noProductsContainer {
+      margin-top: 20px;
+    }
 
-  .noProductsSVG {
-    width: 21px;
-    height: 21px;
-  }
-}
+    .noProducts {
+      font-size: 12px;
+    }
 
-@media (width <= 384px) {
-  .noProductsContainer {
-    margin-top: 20px;
+    .noProductsSVG {
+      width: 17px;
+      height: 17px;
+    }
   }
-
-  .noProducts {
-    font-size: 12px;
-  }
-
-  .noProductsSVG {
-    width: 17px;
-    height: 17px;
-  }
-}
-
 </style>
