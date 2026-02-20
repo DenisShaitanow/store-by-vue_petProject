@@ -1,4 +1,6 @@
-import { createStore, StoreOptions, Store } from 'vuex';
+// @ts-ignore
+import { createStore } from 'vuex';
+import type { StoreOptions, Store } from 'vuex/types/index.d.ts';
 import { RootState } from './types';
 import user from './modules/user';
 import userData from './modules/userData';

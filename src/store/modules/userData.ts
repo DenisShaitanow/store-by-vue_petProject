@@ -1,4 +1,4 @@
-import { Module } from 'vuex';
+import type { Module } from 'vuex/types/index.d.ts';
 import { IProduct, IFormOrderData } from '../../types/index';
 
 import { RootState } from '@/store/types';
@@ -276,15 +276,13 @@ const getters = {
   selectLoadingOrder: (state: IUserState) => state.loadingOrder,
 
   // Дополнительные геттеры
-  basketTotal: (state: IUserState) =>
-    state.basket.reduce((total, product) => total + product.price, 0),
+
 
   basketCount: (state: IUserState) => state.basket.length,
 
   favoritesCount: (state: IUserState) => state.favoriteItems.length,
 
-  isProductInBasket: (state: IUserState) => (productId: string) =>
-    state.basket.some((item) => item.id === productId),
+  
 
   isProductInFavorites: (state: IUserState) => (productId: string) =>
     state.favoriteItems.includes(productId),

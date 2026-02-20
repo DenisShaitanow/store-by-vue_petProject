@@ -1,5 +1,5 @@
 // store/modules/user.ts
-import { Module } from 'vuex';
+import type { Module } from 'vuex/types/index.d.ts';
 import { RegistrationData } from '../../types/index';
 import { RootState } from '../types';
 
@@ -62,7 +62,12 @@ const mutations = {
 
 // Типы для actions
 interface ActionContext {
-  commit: <K extends keyof typeof mutations>(key: K, payload: MutationPayloads[K]) => void;
+  commit: <K extends keyof typeof mutations>(
+    key: K,
+    ...payload: Parameters<typeof mutations[K]> extends [any, infer P] 
+      ? [P] 
+      : []
+  ) => void;
   state: UserState;
   rootState: RootState;
   dispatch: (action: string, payload?: any) => Promise<any>;
@@ -75,7 +80,7 @@ const actions = {
     userData: RegistrationData
   ): Promise<{ user: RegistrationData | null }> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       const response = await mockedRegisterUserApi(userData);
@@ -105,7 +110,7 @@ const actions = {
     userData: RegistrationData
   ): Promise<{ user: RegistrationData | null }> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       const response = await changeDataInPersonalCabinetApi(userData);
@@ -134,7 +139,7 @@ const actions = {
     credentials: { email: string; password: string }
   ): Promise<RegistrationData> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       const response = await mockedLoginUserApi(credentials);
@@ -161,7 +166,7 @@ const actions = {
   // Проверка авторизации
   async checkUserAuth({ commit }: ActionContext): Promise<RegistrationData> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       const accessToken = getCookie('accessToken');
@@ -186,7 +191,7 @@ const actions = {
     userData: RegistrationData
   ): Promise<RegistrationData> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       const response = await mockUpdateUserApi(userData);
@@ -206,7 +211,7 @@ const actions = {
   // Выход пользователя
   async logoutUser({ commit }: ActionContext): Promise<void> {
     commit('SET_LOADING', true);
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
 
     try {
       await mockedLogoutApi();
@@ -228,7 +233,7 @@ const actions = {
 
   // Сброс ошибки
   resetError({ commit }: ActionContext): void {
-    commit('RESET_ERROR', null);
+    commit('RESET_ERROR');
   },
 };
 

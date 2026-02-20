@@ -13,7 +13,8 @@
     "allowJs": false,
     "outDir": "./dist",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["node"],
+    "types": ["node", "vite/client", "vitest/globals"], // Добавил vitest типы
+    "skipLibCheck": true, // Добавил для пропуска проверки библиотек
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
