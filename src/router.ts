@@ -85,7 +85,7 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/store-by-react'), // Базовый путь
+  history: createWebHistory('/store-by-vue_petProject'), // Базовый путь
   routes,
 });
 
